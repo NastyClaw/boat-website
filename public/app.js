@@ -6,7 +6,7 @@
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const cfg = window.BOAT_SITE || {};
 
-  /* ---------- Site config: app link + optional public contact details ---------- */
+  /* ---------- Site config ---------- */
   if (cfg.appUrl) $$('[data-app-link]').forEach((a) => (a.href = cfg.appUrl));
   if (cfg.region) $$('[data-region]').forEach((el) => (el.textContent = cfg.region));
   const c = cfg.contact || {};
@@ -24,7 +24,7 @@
   if (c.hours) addContact('calendar', `<span>${esc(c.hours)}</span>`);
   $('#year').textContent = new Date().getFullYear();
 
-  /* ---------- Header: scroll state + mobile menu ---------- */
+  /* ---------- Header & Mobile Drawer ---------- */
   const header = $('.site-header');
   const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
   onScroll();
@@ -42,9 +42,8 @@
   menuBtn.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
   nav.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && nav.classList.contains('open')) { setMenu(false); menuBtn.focus(); } });
-  window.matchMedia('(min-width: 921px)').addEventListener('change', (m) => m.matches && setMenu(false));
+  window.matchMedia('(min-width: 941px)').addEventListener('change', (m) => m.matches && setMenu(false));
 
-  // Active section highlighting in nav
   const navLinks = $$('.nav > a');
   const sections = navLinks.map((a) => $(a.getAttribute('href'))).filter(Boolean);
   if ('IntersectionObserver' in window) {
@@ -56,95 +55,139 @@
     sections.forEach((s) => so.observe(s));
   }
 
-  /* ---------- Hero interactive workspace preview ---------- */
+  /* ---------- Hero Interactive Application Workspace ---------- */
   const HERO_VIEWS = {
     business: {
-      url: 'boat-frontend.vercel.app · Business dashboard',
+      org: 'Lake View Traders · General Business',
       mode: 'General Business mode',
       title: 'Business dashboard',
-      sub: 'Sales, spending, money owed and accounting in one shared workspace.',
-      cta: 'New quick sale',
+      period: 'Period · Nov 2026',
       kpis: [
-        ['Sales this month', 'UGX 18,450,000'],
-        ['Expenses this month', 'UGX 9,120,500'],
-        ['Customers owing', 'UGX 3,760,000'],
-        ['Suppliers to pay', 'UGX 2,215,000'],
+        ['Sales this month', 'UGX 18,450,000', false],
+        ['Expenses this month', 'UGX 9,120,500', false],
+        ['Customers owing', 'UGX 3,760,000', false],
+        ['Suppliers to pay', 'UGX 2,215,000', true],
       ],
-      tasksTitle: 'Common tasks',
-      tasks: ['New sales invoice', 'Money Out', 'Cash stock purchase', 'Reconcile accounts', 'Financial reports', 'Review customers owing'],
-      alertsTitle: 'Needs attention',
-      alerts: [
-        ['amber', 'Overdue customer invoices', 'Review customers owing'],
-        ['rose', 'Overdue supplier bills', 'Review suppliers to pay'],
+      chartTitle: 'Monthly inflows vs. spending',
+      bars: [
+        ['Jun', 58, 34, 'Jun · UGX 12.4M in / 7.1M out'],
+        ['Jul', 66, 39, 'Jul · UGX 14.1M in / 8.0M out'],
+        ['Aug', 62, 36, 'Aug · UGX 13.6M in / 7.4M out'],
+        ['Sep', 76, 43, 'Sep · UGX 16.2M in / 8.8M out'],
+        ['Oct', 81, 41, 'Oct · UGX 17.0M in / 8.5M out'],
+        ['Nov', 90, 45, 'Nov · UGX 18.45M in / 9.12M out'],
+      ],
+      tableTitle: 'Recent cashbook & ledger entries',
+      headers: ['Ref', 'Entry', 'Channel', 'Amount (UGX)'],
+      rows: [
+        ['RCP-1048', 'Customer invoice receipt', 'MTN MoMo', '+1,450,000'],
+        ['PV-0392', 'Approved supplier settlement', 'Bank', '−820,000'],
+        ['RCP-1049', 'Counter quick sale batch', 'Cash', '+640,000'],
+        ['JNL-0114', 'Monthly utilities accrual', 'Journal', '−295,000'],
       ],
     },
     school: {
-      url: 'boat-frontend.vercel.app · School dashboard',
-      mode: 'School operations',
+      org: 'Kampala Horizon School · School Bursar',
+      mode: 'School finance operations',
       title: 'School dashboard',
-      sub: 'Students, fees, collections, available funds and approvals in one view.',
-      cta: 'Receive payment',
+      period: 'Term 3 · 642 Students',
       kpis: [
-        ['Active students', '642'],
-        ['Fees collected', 'UGX 214.6M'],
-        ['Unpaid fees', 'UGX 58.3M'],
-        ['Collection rate', '78.6%'],
+        ['Term fees billed', 'UGX 272,900,000', false],
+        ['Fees collected', 'UGX 214,600,000', true],
+        ['Unpaid balances', 'UGX 58,300,000', false],
+        ['Available cash & bank', 'UGX 94,180,000', false],
       ],
-      tasksTitle: 'Common tasks',
-      tasks: ['Receive fee payment', 'Create term charges', 'Student register', 'View receipts', 'Arrears & credit control', 'Collections summary'],
-      alertsTitle: 'Tasks & alerts',
-      alerts: [
-        ['amber', 'Term fee reminders queued', 'Open reminder automation'],
-        ['rose', 'Pending bursary approvals', 'Review approval inbox'],
+      chartTitle: 'Fee collection rate by class group',
+      bars: [
+        ['Nur', 71, 29, 'Nursery · 71% collected (UGX 36.2M)'],
+        ['P.1–3', 75, 25, 'P.1–P.3 · 75% collected (UGX 44.5M)'],
+        ['P.4', 77, 23, 'Primary 4 · 77% collected (UGX 27.6M)'],
+        ['P.5', 79, 21, 'Primary 5 · 79% collected (UGX 54.2M)'],
+        ['P.6', 82, 18, 'Primary 6 · 82% collected (UGX 53.9M)'],
+        ['P.7', 88, 12, 'Primary 7 · 88% collected (UGX 48.15M)'],
+      ],
+      tableTitle: 'Recent student fee receipts & vote items',
+      headers: ['Receipt', 'Student / Vote', 'Method', 'Amount (UGX)'],
+      rows: [
+        ['SFR-8821', 'P.7A · Term 3 tuition balance', 'SchoolPay / Bank', '+650,000'],
+        ['SFR-8822', 'P.5B · Boarding & meals installment', 'Airtel Money', '+420,000'],
+        ['VB-0209', 'Laboratory supplies vote release', 'Bank transfer', '−1,150,000'],
+        ['SFR-8823', 'P.3A · Tuition receipt', 'MTN MoMo', '+380,000'],
       ],
     },
     approvals: {
-      url: 'boat-frontend.vercel.app · Finance overview',
+      org: 'Nile Valley Group · Procure-to-Pay',
       mode: 'Payments, reporting & assurance',
-      title: 'Finance overview',
-      sub: 'Trace purchase orders, goods received, supplier bills and payment release.',
-      cta: 'Review queue',
+      title: 'Approval & reconciliation centre',
+      period: 'Close · Open period',
       kpis: [
-        ['Collected This Term', 'UGX 96.4M'],
-        ['Spent This Term', 'UGX 41.2M'],
-        ['Available Cash & Bank', 'UGX 55.2M'],
-        ['Pending Approvals', '7', true],
+        ['Collected this period', 'UGX 96,400,000', false],
+        ['Approved expenditure', 'UGX 41,200,000', false],
+        ['Cash & bank verified', 'UGX 55,200,000', false],
+        ['Awaiting checker sign-off', '3 vouchers', true],
       ],
-      tasksTitle: 'Approval workflow',
-      tasks: ['Purchase order', 'Goods received', 'Three-way match', 'Supplier bill', 'Approval matrix', 'Payment release'],
-      alertsTitle: 'Approval inbox',
-      alerts: [
-        ['amber', 'Supplier bill awaiting checker', 'Review supporting voucher'],
-        ['rose', 'Expense request pending sign-off', 'Open approval matrix'],
+      chartTitle: 'Budget vs. actual spend by department',
+      bars: [
+        ['Ops', 74, 68, 'Operations · UGX 14.2M actual / 15.5M budget'],
+        ['Store', 64, 61, 'Stores · UGX 9.8M actual / 10.4M budget'],
+        ['Admin', 52, 49, 'Admin · UGX 6.4M actual / 6.8M budget'],
+        ['Fleet', 69, 58, 'Transport · UGX 5.9M actual / 7.0M budget'],
+        ['IT', 40, 38, 'Systems · UGX 2.4M actual / 2.6M budget'],
+        ['Maint', 46, 44, 'Maintenance · UGX 2.5M actual / 2.7M budget'],
+      ],
+      tableTitle: 'Maker-checker approval queue',
+      headers: ['Voucher', 'Item & 3-way match', 'Stage', 'Amount (UGX)'],
+      rows: [
+        ['BILL-219', 'PO-088 / GRN-084 stationery', 'Matched', '3,450,000'],
+        ['EXP-402', 'Generator fuel requisition', 'Checker', '680,000'],
+        ['PAY-115', 'Approved supplier release', 'Sign-off', '6,120,000'],
+        ['PCV-067', 'Petty cash float count', 'Verified', '500,000'],
       ],
     },
   };
 
   const heroBtns = $$('#hero-switcher [role="tab"]');
-  const heroContent = $('#hero-win-content');
+  const heroCanvas = $('#hero-win-content');
+  const chartReadout = $('#chart-readout');
+  const heroBars = $('#hero-bars');
   let heroTimer = null;
+
+  const bindBarHover = () => {
+    const cols = $$('.bc-col', heroBars);
+    cols.forEach((col) => {
+      const activate = () => {
+        cols.forEach((c) => c.classList.toggle('active', c === col));
+        chartReadout.textContent = col.dataset.label || '';
+      };
+      col.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') activate(); });
+      col.addEventListener('click', activate);
+      col.addEventListener('focus', activate);
+    });
+  };
+  bindBarHover();
 
   const renderHeroView = (key) => {
     const v = HERO_VIEWS[key];
     if (!v) return;
-    $('#hero-win-url').textContent = v.url;
+    $('#af-org-name').textContent = v.org;
     $('#hw-mode').textContent = v.mode;
     $('#hw-title').textContent = v.title;
-    $('#hw-sub').textContent = v.sub;
-    $('#hw-cta').textContent = v.cta;
+    $('#hw-period').textContent = v.period;
     $('#hw-kpis').innerHTML = v.kpis
-      .map(([lbl, val, acc]) => `<div class="kpi${acc ? ' accent' : ''}"><small>${esc(lbl)}</small><b>${esc(val)}</b></div>`)
+      .map(([lbl, val, hi]) => `<div class="afm${hi ? ' afm-highlight' : ''}"><span>${esc(lbl)}</span><strong class="mono">${esc(val)}</strong></div>`)
       .join('');
-    $('#hw-grid').innerHTML = `
-      <div class="panel">
-        <h4>${esc(v.tasksTitle)}</h4>
-        <div class="tasks">${v.tasks.map((t) => `<span>${esc(t)}</span>`).join('')}</div>
-      </div>
-      <div class="panel">
-        <h4>${esc(v.alertsTitle)}</h4>
-        <ul class="alerts">${v.alerts.map(([dot, title, cta]) => `<li><span class="dot ${dot}"></span>${esc(title)}<em>${esc(cta)}</em></li>`).join('')}</ul>
-      </div>`;
-    $$('.hero .ws-item').forEach((el) => el.classList.toggle('active', el.dataset.side === key));
+    $('#hw-chart-title').textContent = v.chartTitle;
+    heroBars.innerHTML = v.bars
+      .map(([m, hIn, hOut, label], idx) => `<button type="button" class="bc-col${idx === v.bars.length - 1 ? ' active' : ''}" data-label="${esc(label)}"><span class="bc-in" style="--h:${hIn}%"></span><span class="bc-out" style="--h:${hOut}%"></span><em>${esc(m)}</em></button>`)
+      .join('');
+    chartReadout.textContent = v.bars[v.bars.length - 1][3];
+    bindBarHover();
+
+    $('#hw-table-title').textContent = v.tableTitle;
+    $('#hw-table').innerHTML = `
+      <thead><tr>${v.headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
+      <tbody>${v.rows.map(([r0, r1, r2, r3]) => `<tr><td class="mono">${esc(r0)}</td><td>${esc(r1)}</td><td>${esc(r2)}</td><td class="mono">${esc(r3)}</td></tr>`).join('')}</tbody>`;
+    $$('.af-sidebar .afs-item').forEach((el) => el.classList.toggle('active', el.dataset.side === key));
   };
 
   const switchHeroView = (btn, instant = false) => {
@@ -156,15 +199,15 @@
     });
     clearTimeout(heroTimer);
     if (instant || reduceMotion()) {
-      heroContent.classList.remove('swapping');
+      heroCanvas.classList.remove('swapping');
       renderHeroView(key);
       return;
     }
-    heroContent.classList.add('swapping');
+    heroCanvas.classList.add('swapping');
     heroTimer = setTimeout(() => {
       renderHeroView(key);
-      requestAnimationFrame(() => heroContent.classList.remove('swapping'));
-    }, 95);
+      requestAnimationFrame(() => heroCanvas.classList.remove('swapping'));
+    }, 85);
   };
 
   heroBtns.forEach((btn, i) => {
@@ -174,13 +217,13 @@
       if (e.key in map) {
         e.preventDefault();
         const next = heroBtns[(map[e.key] + heroBtns.length) % heroBtns.length];
-        switchHeroView(next, true); // zero delay on keyboard actions
+        switchHeroView(next, true);
         next.focus();
       }
     });
   });
 
-  /* ---------- Feature tabs + GPU-composited sliding indicator ---------- */
+  /* ---------- Feature Tabs + Sliding Ink Pill ---------- */
   const tabList = $('#feature-tabs');
   const tabs = $$('[role="tab"]', tabList);
   const indicator = $('#tab-indicator');
@@ -188,11 +231,11 @@
   const moveIndicator = (tab, instant = false) => {
     if (!tab || !indicator || !tabList) return;
     if (instant || reduceMotion()) indicator.classList.add('no-anim');
-    const pad = 6;
+    const pad = 4;
     const innerW = tabList.clientWidth - pad * 2;
     const left = Math.max(0, tab.offsetLeft - pad);
     const right = Math.max(0, innerW - (left + tab.offsetWidth));
-    indicator.style.clipPath = `inset(0 ${right}px 0 ${left}px round 999px)`;
+    indicator.style.clipPath = `inset(0 ${right}px 0 ${left}px round 7px)`;
     if (instant || reduceMotion()) {
       requestAnimationFrame(() => indicator.classList.remove('no-anim'));
     }
@@ -243,7 +286,7 @@
   if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncActiveIndicator);
   window.addEventListener('resize', syncActiveIndicator, { passive: true });
 
-  /* ---------- How It Works pointer progress track ---------- */
+  /* ---------- How It Works Pointer Rail ---------- */
   const journeySteps = $$('#journey-list li');
   const journeyFill = $('#journey-fill');
   if (journeyFill && journeySteps.length) {
@@ -253,16 +296,12 @@
     };
     setStep(0);
     journeySteps.forEach((li, i) => {
-      li.addEventListener('pointerenter', (e) => {
-        if (e.pointerType === 'mouse') setStep(i);
-      });
+      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setStep(i); });
     });
-    $('#journey-list').addEventListener('pointerleave', (e) => {
-      if (e.pointerType === 'mouse') setStep(0);
-    });
+    $('#journey-list').addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') setStep(0); });
   }
 
-  /* ---------- Pricing interactions ---------- */
+  /* ---------- Pricing Schedule Interactions ---------- */
   const dm = $('#dm-toggle');
   const total = $('#impl-total');
   const note = $('#impl-note');
@@ -271,7 +310,9 @@
   dm.addEventListener('change', () => {
     const on = dm.checked;
     dm.closest('li').classList.toggle('on', on);
-    note.textContent = on ? 'Including data management · UGX 500,000 without it' : 'Without data management · UGX 700,000 with it';
+    note.textContent = on
+      ? 'Includes optional data management · UGX 500,000 without it'
+      : 'Without data management · UGX 700,000 with optional data management';
     clearTimeout(dmTimer);
     if (reduceMotion()) {
       total.textContent = fmt(on ? 700000 : 500000);
@@ -281,7 +322,7 @@
     dmTimer = setTimeout(() => {
       total.textContent = fmt(on ? 700000 : 500000);
       requestAnimationFrame(() => total.classList.remove('updating'));
-    }, 80);
+    }, 75);
   });
 
   const students = $('#students');
@@ -290,7 +331,9 @@
 
   const updateEst = () => {
     const n = Math.max(0, Math.floor(Number(students.value) || 0));
-    estOut.textContent = n > 0 ? `≈ UGX ${fmt(n * 1000)} per month for ${fmt(n)} students` : 'Enter the number of students';
+    estOut.textContent = n > 0
+      ? `${fmt(n)} students = UGX ${fmt(n * 1000)} / month`
+      : 'Enter student enrollment to calculate monthly subscription';
     presetChips.forEach((chip) => {
       const match = Number(chip.dataset.students) === n;
       chip.classList.toggle('active', match);
@@ -306,7 +349,7 @@
   });
   updateEst();
 
-  /* ---------- Smooth, interruptible FAQ accordion ---------- */
+  /* ---------- Smooth Interruptible FAQ Accordion ---------- */
   $$('#faq-list details').forEach((det) => {
     const summary = $('summary', det);
     const body = $('.faq-body', det);
@@ -314,7 +357,7 @@
     let animEnd = null;
 
     summary.addEventListener('click', (e) => {
-      if (reduceMotion()) return; // native instant toggle under reduced motion
+      if (reduceMotion()) return;
       e.preventDefault();
       if (animEnd) {
         body.removeEventListener('transitionend', animEnd);
@@ -322,7 +365,6 @@
       }
 
       if (det.open && !det.dataset.closing) {
-        // Interruptible close from current live height
         det.dataset.closing = '1';
         const currentH = body.getBoundingClientRect().height;
         body.style.height = currentH + 'px';
@@ -342,7 +384,6 @@
         };
         body.addEventListener('transitionend', animEnd);
       } else {
-        // Interruptible open from current live height
         delete det.dataset.closing;
         const startH = det.open ? body.getBoundingClientRect().height : 0;
         det.open = true;
@@ -366,7 +407,7 @@
     });
   });
 
-  /* ---------- Demo booking form ---------- */
+  /* ---------- Demo Booking Form ---------- */
   const form = $('#demo-form');
   const typeSel = $('#f-type');
   const sizeSel = $('#f-size');
@@ -385,19 +426,16 @@
     const isSchool = typeSel.value === 'School';
     const opts = typeSel.value ? SIZES[isSchool ? 'school' : 'business'] : [];
     const prev = sizeSel.value;
-    sizeSel.innerHTML = `<option value="" selected disabled>${typeSel.value ? (isSchool ? 'Number of students' : 'Number of staff') : 'Select type first'}</option>` +
+    sizeSel.innerHTML = `<option value="" selected disabled>${typeSel.value ? (isSchool ? 'Student enrollment' : 'Staff size') : 'Select type first'}</option>` +
       opts.map((o) => `<option${o === prev ? ' selected' : ''}>${o}</option>`).join('');
-    if (!opts.includes(prev)) fieldOf('organizationSize')?.classList.remove('valid');
   };
   typeSel.addEventListener('change', fillSizes);
 
-  // Prefill organization type from "Request a quote" & Solution card CTAs
   $$('[data-prefill-type]').forEach((a) =>
     a.addEventListener('click', () => {
       typeSel.value = a.dataset.prefillType;
       fillSizes();
       clearError('organizationType');
-      fieldOf('organizationType')?.classList.add('valid');
     })
   );
 
@@ -413,7 +451,6 @@
   const setError = (name, msg) => {
     const f = fieldOf(name); const e = $('#e-' + name); const input = form.elements[name];
     if (!f || !e) return;
-    f.classList.remove('valid');
     f.classList.add('invalid');
     e.textContent = msg;
     input.setAttribute('aria-invalid', 'true');
@@ -448,21 +485,12 @@
 
   Object.keys(validators).forEach((name) => {
     const el = form.elements[name];
-    const check = (markValid) => {
+    el.addEventListener('blur', () => {
       const m = validators[name](el.value);
-      if (m) {
-        setError(name, m);
-      } else {
-        clearError(name);
-        if (markValid && name !== 'message' && el.value.trim()) fieldOf(name)?.classList.add('valid');
-      }
-    };
-    el.addEventListener('blur', () => check(true));
-    el.addEventListener('change', () => { if (el.tagName === 'SELECT' || el.type === 'date') check(true); });
+      m ? setError(name, m) : clearError(name);
+    });
     el.addEventListener('input', () => {
-      if (fieldOf(name)?.classList.contains('invalid')) check(true);
-      else if (name !== 'message' && el.value.trim() && !validators[name](el.value)) fieldOf(name)?.classList.add('valid');
-      else fieldOf(name)?.classList.remove('valid');
+      if (fieldOf(name)?.classList.contains('invalid') && !validators[name](el.value)) clearError(name);
     });
   });
 
@@ -485,10 +513,7 @@
     for (const [name, fn] of Object.entries(validators)) {
       const msg = fn(form.elements[name].value);
       if (msg) { setError(name, msg); firstBad ||= form.elements[name]; }
-      else {
-        clearError(name);
-        if (name !== 'message' && form.elements[name].value.trim()) fieldOf(name)?.classList.add('valid');
-      }
+      else clearError(name);
     }
     if (firstBad) { firstBad.focus(); return; }
 
@@ -540,7 +565,7 @@
 
   $('#book-another').addEventListener('click', () => {
     form.reset();
-    $$('.field', form).forEach((f) => f.classList.remove('valid', 'invalid'));
+    $$('.field', form).forEach((f) => f.classList.remove('invalid'));
     msgCount.textContent = 'Optional';
     fillSizes();
     stamp();
