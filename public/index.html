@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="en-UG" data-type="software">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <title>BOAT — Financial management &amp; accounting for businesses and schools</title>
+  <meta name="description" content="BOAT (Business Operations Automation Technologies) is a financial management and accounting platform for small businesses, medium-sized businesses, large organizations and schools. Professionally installed, configured and taught to your staff.">
+  <meta name="page-type" content="software">
+  <meta name="site-kind" content="software">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="icon" type="image/svg+xml" href="/assets/boat-logo-square.svg">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="BOAT — Business Operations Automation Technologies">
+  <meta property="og:description" content="Accounting, school fees, purchasing, payroll and reporting in one platform — installed, configured and taught to your team.">
+  <meta property="og:image" content="/assets/boat-logo-square.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/site-config.js"></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <!-- Icon sprite (Lucide-style strokes, matching the BOAT app's icon language) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+      <symbol id="i-store" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9"/><path d="M4 9v11h16V9"/><path d="M9 20v-6h6v6"/><path d="M3 9h18"/></symbol>
+      <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 2 10 5-10 5L2 7Z"/><path d="m2 17 10 5 10-5"/><path d="m2 12 10 5 10-5"/></symbol>
+      <symbol id="i-building" viewBox="0 0 24 24"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></symbol>
+      <symbol id="i-school" viewBox="0 0 24 24"><path d="M22 10 12 5 2 10l10 5 10-5Z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/><path d="M22 10v6"/></symbol>
+      <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+      <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></symbol>
+      <symbol id="i-buoy" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.93 4.93 4.24 4.24M14.83 9.17l4.24-4.24M14.83 14.83l4.24 4.24M9.17 14.83l-4.24 4.24"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z"/><path d="M8 7h8M8 11h8M8 15h5"/></symbol>
+      <symbol id="i-bar" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M8 17v-5M13 17V9M18 17v-9"/></symbol>
+    </defs>
+  </svg>
+
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <div class="wrap header-row">
+      <a class="brand" href="#top" aria-label="BOAT home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="78 70 244 300"><rect x="194" y="84" width="12" height="178" rx="6" fill="#38BDF8"/><path d="M206 86L298 224H206V86Z" fill="#22D3EE"/><path d="M206 142L134 250H206V142Z" fill="#67E8F9"/><path d="M78 286H322C301 328 260 356 200 356C140 356 99 328 78 286Z" fill="#14B8A6"/></svg>
+        </span>
+        <span class="brand-word">BOAT</span>
+      </a>
+      <nav class="nav" id="site-nav" aria-label="Primary">
+        <a href="#solutions">Solutions</a>
+        <a href="#features">Features</a>
+        <a href="#why">Why BOAT</a>
+        <a href="#how">How it works</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <div class="nav-mobile-cta">
+          <a class="btn btn-primary btn-block" href="#book">Book a demo</a>
+          <a class="btn btn-ghost btn-block" data-app-link href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener">Open BOAT app</a>
+        </div>
+      </nav>
+      <div class="header-cta">
+        <a class="link-quiet u-link" data-app-link href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener" id="header-open-app">Sign in</a>
+        <a class="btn btn-primary btn-sm" href="#book" id="header-book-demo">Book a demo</a>
+      </div>
+      <button class="menu-btn" id="menu-toggle" type="button" aria-controls="site-nav" aria-expanded="false" aria-label="Open menu">
+        <svg class="ic"><use href="#i-menu"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- ───────────── HERO ───────────── -->
+    <section class="hero" data-enter>
+      <div class="wrap hero-copy">
+        <p class="eyebrow hero-eyebrow">BOAT · Business Operations Automation Technologies</p>
+        <h1 class="hero-title">Financial management &amp; accounting for businesses and schools.</h1>
+        <p class="lede hero-lede">Record every shilling, route approvals, run payroll and generate statements in one workspace. Professionally installed, configured and taught to your staff — from UGX 50,000/month.</p>
+        <div class="hero-actions hero-cta">
+          <a class="btn btn-primary btn-lg" href="#book" id="hero-book-demo">Book a demo <svg class="ic"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-ghost btn-lg" href="#features" id="hero-explore">Explore BOAT</a>
+        </div>
+      </div>
+
+      <div class="wrap">
+        <div class="stage hero-stage">
+          <div class="stage-bar" role="tablist" aria-label="Preview BOAT workspace modes">
+            <span class="stage-bar-label">Workspace preview</span>
+            <div class="stage-pills" id="hero-switcher">
+              <button type="button" role="tab" aria-selected="true" data-hero-view="business">General Business</button>
+              <button type="button" role="tab" aria-selected="false" data-hero-view="school">School Fees</button>
+              <button type="button" role="tab" aria-selected="false" data-hero-view="approvals">Approvals</button>
+            </div>
+          </div>
+          <div class="win" aria-label="Interactive recreation of the BOAT application workspace">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url" id="hero-win-url">boat-frontend.vercel.app · Business dashboard</span></div>
+            <div class="win-body">
+              <aside class="win-side" aria-hidden="true">
+                <div class="ws-brand"><span class="ws-logo"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10m4 11V10m6 11V10m4 11V10M2 10l10-7 10 7Z"/></svg></span>BOAT</div>
+                <span class="ws-item active" data-side="business">Dashboard</span>
+                <span class="ws-item">Cashbook</span>
+                <span class="ws-item" data-side="school">School Fees</span>
+                <span class="ws-item">Money Out</span>
+                <span class="ws-item" data-side="approvals">Approvals</span>
+                <span class="ws-item">Stock</span>
+                <span class="ws-item">Accounting</span>
+                <span class="ws-item">Reports</span>
+              </aside>
+              <div class="win-main hero-win-content" id="hero-win-content">
+                <div class="wm-head">
+                  <div>
+                    <small id="hw-mode">General Business mode</small>
+                    <strong id="hw-title">Business dashboard</strong>
+                    <span class="wm-sub" id="hw-sub">Sales, spending, money owed and accounting in one shared workspace.</span>
+                  </div>
+                  <span class="wm-btn" id="hw-cta">New quick sale</span>
+                </div>
+                <div class="kpis" id="hw-kpis">
+                  <div class="kpi"><small>Sales this month</small><b>UGX 18,450,000</b></div>
+                  <div class="kpi"><small>Expenses this month</small><b>UGX 9,120,500</b></div>
+                  <div class="kpi"><small>Customers owing</small><b>UGX 3,760,000</b></div>
+                  <div class="kpi"><small>Suppliers to pay</small><b>UGX 2,215,000</b></div>
+                </div>
+                <div class="wm-grid" id="hw-grid">
+                  <div class="panel">
+                    <h4>Common tasks</h4>
+                    <div class="tasks">
+                      <span>New sales invoice</span><span>Money Out</span><span>Cash stock purchase</span><span>Reconcile accounts</span><span>Financial reports</span><span>Review customers owing</span>
+                    </div>
+                  </div>
+                  <div class="panel">
+                    <h4>Needs attention</h4>
+                    <ul class="alerts">
+                      <li><span class="dot amber"></span>Overdue customer invoices<em>Review customers owing</em></li>
+                      <li><span class="dot rose"></span>Overdue supplier bills<em>Review suppliers to pay</em></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── PURPOSE ───────────── -->
+    <section class="section purpose" id="purpose">
+      <div class="wrap audience-bar" aria-label="Who BOAT serves">
+        <span class="audience-label">Built for</span>
+        <div class="audience-links">
+          <a href="#sol-small">Small businesses</a>
+          <a href="#sol-medium">Medium-sized businesses</a>
+          <a href="#sol-large">Large organizations</a>
+          <a href="#sol-schools">Schools</a>
+        </div>
+      </div>
+
+      <div class="wrap split-head">
+        <div>
+          <p class="eyebrow">What BOAT is for</p>
+          <h2>One place for the money side of your organization.</h2>
+        </div>
+        <p class="muted">Most organizations keep finances across receipt books, spreadsheets and separate tools. BOAT replaces that patchwork with a single system that records each transaction once, routes it for approval, and turns it into the reports owners, boards and accountants need.</p>
+      </div>
+      <div class="wrap trio">
+        <article class="trio-item">
+          <span class="pillar-ic" aria-hidden="true"><svg class="ic"><use href="#i-receipt"/></svg></span>
+          <h3>Record</h3>
+          <p>Money in and money out, sales and invoices, supplier bills, school-fee payments, cash, bank and mobile-money accounts.</p>
+        </article>
+        <article class="trio-item">
+          <span class="pillar-ic" aria-hidden="true"><svg class="ic"><use href="#i-shield"/></svg></span>
+          <h3>Control</h3>
+          <p>Roles and permissions, amount-based approval routes, reconciliations, petty-cash controls and a month-end close with an audit trail.</p>
+        </article>
+        <article class="trio-item">
+          <span class="pillar-ic" aria-hidden="true"><svg class="ic"><use href="#i-bar"/></svg></span>
+          <h3>Report</h3>
+          <p>Trial balance, income statement, statement of financial position, cash flow, budget variance and school-fee reports.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────── SOLUTIONS ───────────── -->
+    <section class="section solutions" id="solutions">
+      <div class="wrap section-head">
+        <p class="eyebrow">Solutions</p>
+        <h2>Configured for how your organization works.</h2>
+        <p class="muted">BOAT is set up around your organization type during installation, so each team sees the workspace and tools that fit its size and responsibilities.</p>
+      </div>
+
+      <div class="wrap sol-grid">
+        <article class="sol" id="sol-small">
+          <div class="sol-top">
+            <span class="tile" aria-hidden="true"><svg class="ic"><use href="#i-store"/></svg></span>
+            <span class="sol-price">UGX 50,000<small>/month</small></span>
+          </div>
+          <h3>Small businesses</h3>
+          <p>A single business dashboard for sales, spending, money owed and accounting — without needing an accountant on staff to use it day to day.</p>
+          <ul class="ticks">
+            <li>Quick sale (POS), sales invoices and customer receipts</li>
+            <li>Expenses / Money Out and supplier payments</li>
+            <li>Cash, bank &amp; mobile money accounts</li>
+            <li>Customers owing and suppliers to pay at a glance</li>
+            <li>Financial reports from the same records</li>
+          </ul>
+          <a class="sol-action u-link" href="#book" data-prefill-type="Small business">Book a small-business demo <svg class="ic"><use href="#i-arrow"/></svg></a>
+        </article>
+
+        <article class="sol" id="sol-medium">
+          <div class="sol-top">
+            <span class="tile" aria-hidden="true"><svg class="ic"><use href="#i-layers"/></svg></span>
+            <span class="sol-price">UGX 100,000<small>/month</small></span>
+          </div>
+          <h3>Medium-sized businesses</h3>
+          <p>Bring purchasing, stock, staff pay and budgets into the same system as your books, with each team member working in their own role.</p>
+          <ul class="ticks">
+            <li>Purchase orders, goods received and supplier bills</li>
+            <li>Stock balances, counts, adjustments and store requisitions</li>
+            <li>Payroll: employees, salary structure, statutory deductions, payslips</li>
+            <li>Budgeting, budget variance and bank reconciliation</li>
+            <li>Staff accounts with roles and permissions</li>
+          </ul>
+          <a class="sol-action u-link" href="#book" data-prefill-type="Medium-sized business">Book a medium-business demo <svg class="ic"><use href="#i-arrow"/></svg></a>
+        </article>
+
+        <article class="sol" id="sol-large">
+          <div class="sol-top">
+            <span class="tile" aria-hidden="true"><svg class="ic"><use href="#i-building"/></svg></span>
+            <span class="sol-price sol-price-quote">Custom quote</span>
+          </div>
+          <h3>Large organizations</h3>
+          <p>Segregation of duties and formal controls: work is prepared, reviewed and approved by different people, and every period is closed with a record of who did what.</p>
+          <ul class="ticks">
+            <li>Approval matrix with amount-based maker-checker routes</li>
+            <li>Procure-to-pay control and three-way matching</li>
+            <li>Budget prepare, review and approve stages</li>
+            <li>Payroll review &amp; approve with an audit trail</li>
+            <li>Financial close workspace, cost allocation and fixed assets</li>
+          </ul>
+          <a class="sol-action u-link" href="#book" data-prefill-type="Large organization">Request an enterprise quote <svg class="ic"><use href="#i-arrow"/></svg></a>
+        </article>
+
+        <article class="sol sol-school" id="sol-schools">
+          <div class="sol-top">
+            <span class="tile" aria-hidden="true"><svg class="ic"><use href="#i-school"/></svg></span>
+            <span class="sol-price">UGX 1,000<small>/student/month</small></span>
+          </div>
+          <h3>Schools</h3>
+          <p>A school dashboard that puts students, fees, collections, available funds and approvals first, while detailed accounting stays available to authorized roles such as the bursar.</p>
+          <ul class="ticks">
+            <li>Student register, admissions, parents, classes and streams</li>
+            <li>Fee structures, term charges, student invoices and fee payments</li>
+            <li>Bursaries, discounts &amp; waivers; arrears and credit control</li>
+            <li>Fee reminder automation, petty cash and vote book</li>
+            <li>Fee collections, outstanding balances, defaulters and term reports</li>
+          </ul>
+          <a class="sol-action sol-action-light u-link" href="#book" data-prefill-type="School">Book a school demo <svg class="ic"><use href="#i-arrow"/></svg></a>
+        </article>
+      </div>
+
+      <p class="wrap sector-note">During setup BOAT also offers workspace templates for retail shops, hotels, restaurants, manufacturing, clinics and pharmacies, SACCOs, VSLAs and agriculture. Ask about your sector when you book a demo.</p>
+    </section>
+
+    <!-- ───────────── FEATURES ───────────── -->
+    <section class="section features" id="features">
+      <div class="wrap section-head">
+        <p class="eyebrow">Features</p>
+        <h2>What’s inside the BOAT application.</h2>
+        <p class="muted">Every capability below exists in the current BOAT application. Interface views mirror the app’s own dashboards and labels using illustrative figures.</p>
+      </div>
+
+      <div class="wrap">
+        <div class="tabs-shell">
+          <div class="tabs" id="feature-tabs" role="tablist" aria-label="BOAT feature areas">
+            <span class="tab-indicator" id="tab-indicator" aria-hidden="true"></span>
+            <button type="button" role="tab" id="tab-school" aria-controls="panel-school" aria-selected="true">School finance</button>
+            <button type="button" role="tab" id="tab-accounting" aria-controls="panel-accounting" aria-selected="false" tabindex="-1">Accounting &amp; reports</button>
+            <button type="button" role="tab" id="tab-purchasing" aria-controls="panel-purchasing" aria-selected="false" tabindex="-1">Purchasing &amp; approvals</button>
+            <button type="button" role="tab" id="tab-payroll" aria-controls="panel-payroll" aria-selected="false" tabindex="-1">Payroll</button>
+            <button type="button" role="tab" id="tab-stock" aria-controls="panel-stock" aria-selected="false" tabindex="-1">Inventory</button>
+            <button type="button" role="tab" id="tab-migration" aria-controls="panel-migration" aria-selected="false" tabindex="-1">Data &amp; training</button>
+          </div>
+        </div>
+
+        <!-- School -->
+        <div class="tab-panel" role="tabpanel" id="panel-school" aria-labelledby="tab-school">
+          <div class="feat-copy">
+            <h3>School dashboard &amp; fee management</h3>
+            <p>“This dashboard prioritizes students, fees, collections, available funds, approvals and exceptions.” Built for bursars, administrators, admissions officers and storekeepers.</p>
+            <ul class="ticks">
+              <li>Fee structures and special fee structures per class and term</li>
+              <li>Create term charges and student invoices in bulk</li>
+              <li>Receive fee payments and issue receipts</li>
+              <li>Student receivables: age unpaid fees, log reminders, track promises to pay</li>
+              <li>Rent collections, grants, donations and other school income</li>
+              <li>Reports: daily cash, fee collections, outstanding balances, top defaulters, enrollment by class, term performance, income &amp; expenditure</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of the BOAT School dashboard">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">School dashboard</span></div>
+            <div class="win-body">
+              <aside class="win-side">
+                <div class="ws-brand"><span class="ws-logo"><svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V10m4 11V10m6 11V10m4 11V10M2 10l10-7 10 7Z"/></svg></span>BOAT</div>
+                <span class="ws-item active">School Dashboard</span>
+                <span class="ws-item">Student register</span>
+                <span class="ws-item">Receive fee payment</span>
+                <span class="ws-item">Student invoices</span>
+                <span class="ws-item">Arrears &amp; credit control</span>
+                <span class="ws-item">Reports</span>
+              </aside>
+              <div class="win-main">
+                <div class="wm-head"><div><small>School operations</small><strong>School dashboard</strong></div><span class="wm-btn">Receive payment</span></div>
+                <div class="kpis kpis-3">
+                  <div class="kpi"><small>Active students</small><b>642</b></div>
+                  <div class="kpi"><small>Fees collected</small><b>UGX 214.6M</b></div>
+                  <div class="kpi"><small>Unpaid fees</small><b>UGX 58.3M</b></div>
+                </div>
+                <div class="panel">
+                  <h4>Fee collection progress <em class="pct">78.6%</em></h4>
+                  <div class="bar"><span style="--w:78.6%"></span></div>
+                  <div class="legend"><span>Fees billed UGX 272.9M</span><span>Collection rate</span></div>
+                </div>
+                <div class="panel">
+                  <h4>Common tasks</h4>
+                  <div class="tasks"><span>Add student</span><span>Create term charges</span><span>View receipts</span><span>Collections summary</span><span>Review approvals</span><span>Health alerts</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accounting -->
+        <div class="tab-panel" role="tabpanel" id="panel-accounting" aria-labelledby="tab-accounting" hidden>
+          <div class="feat-copy">
+            <h3>Double-entry accounting and financial statements</h3>
+            <p>Day-to-day transactions post to the general ledger, so statements are produced from the same records your team enters.</p>
+            <ul class="ticks">
+              <li>Chart of accounts, journal entries, manual journals, general ledger</li>
+              <li>Trial balance, income statement, statement of financial position, cash flow</li>
+              <li>Bank reconciliation and a cash &amp; bank control centre</li>
+              <li>Budgeting with budget-variance reports</li>
+              <li>Fixed assets, asset verification and cost allocation</li>
+              <li>Financial close workspace: month-end checklist, period lock, audit trail</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of BOAT financial reports">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">Reports · Financial statements</span></div>
+            <div class="win-body single">
+              <div class="win-main">
+                <div class="wm-head"><div><small>Accounting</small><strong>Trial balance</strong></div><span class="wm-btn ghost">Export</span></div>
+                <div class="chips"><span class="on">Trial balance</span><span>Income statement</span><span>Balance sheet</span><span>Cash flow</span><span>Budget variance</span></div>
+                <table class="tb">
+                  <thead><tr><th>Account</th><th>Debit</th><th>Credit</th></tr></thead>
+                  <tbody>
+                    <tr><td>Cash at bank</td><td>42,380,000</td><td></td></tr>
+                    <tr><td>Mobile money</td><td>6,915,000</td><td></td></tr>
+                    <tr><td>Accounts receivable</td><td>12,640,000</td><td></td></tr>
+                    <tr><td>Accounts payable</td><td></td><td>8,205,000</td></tr>
+                    <tr><td>Sales revenue</td><td></td><td>71,930,000</td></tr>
+                    <tr><td>Operating expenses</td><td>18,200,000</td><td></td></tr>
+                  </tbody>
+                  <tfoot><tr><td>Totals (UGX)</td><td>80,135,000</td><td>80,135,000</td></tr></tfoot>
+                </table>
+                <p class="balanced"><svg class="ic"><use href="#i-check"/></svg>Debits equal credits</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Purchasing -->
+        <div class="tab-panel" role="tabpanel" id="panel-purchasing" aria-labelledby="tab-purchasing" hidden>
+          <div class="feat-copy">
+            <h3>Purchasing, payables and approvals</h3>
+            <p>Trace purchase orders through goods received, supplier bills and payment release — with approvals routed to the right people.</p>
+            <ul class="ticks">
+              <li>Supplier register, purchase requests and purchase orders</li>
+              <li>Goods received notes and supplier bills without duplicate entry</li>
+              <li>Three-way matching of ordered, received and billed quantities</li>
+              <li>Approval inbox for expenses, supplier bills and payments</li>
+              <li>Approval matrix: amount-based maker-checker routes</li>
+              <li>Petty cash: float custody, vouchers, replenishment and cash counts</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of the BOAT finance overview with approvals">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">Finance overview</span></div>
+            <div class="win-body single">
+              <div class="win-main">
+                <div class="wm-head"><div><small>Payments, reporting &amp; assurance</small><strong>Finance overview</strong></div></div>
+                <div class="kpis">
+                  <div class="kpi"><small>Collected This Term</small><b>UGX 96.4M</b></div>
+                  <div class="kpi"><small>Spent This Term</small><b>UGX 41.2M</b></div>
+                  <div class="kpi"><small>Available Cash &amp; Bank</small><b>UGX 55.2M</b></div>
+                  <div class="kpi accent"><small>Pending Approvals</small><b>7</b></div>
+                </div>
+                <div class="flow">
+                  <span>Purchase order</span><svg class="ic"><use href="#i-arrow"/></svg><span>Goods received</span><svg class="ic"><use href="#i-arrow"/></svg><span>Supplier bill</span><svg class="ic"><use href="#i-arrow"/></svg><span class="on">Payment release</span>
+                </div>
+                <ul class="queue">
+                  <li><b>Supplier bill</b><span>Awaiting checker approval</span><em>Review</em></li>
+                  <li><b>Expense request</b><span>Supporting documents attached</span><em>Review</em></li>
+                  <li><b>Supplier payment</b><span>Approved — ready to release</span><em>Release</em></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payroll -->
+        <div class="tab-panel" role="tabpanel" id="panel-payroll" aria-labelledby="tab-payroll" hidden>
+          <div class="feat-copy">
+            <h3>Payroll with review and approval</h3>
+            <p>Run payroll by period, with separate prepare, review, approve and post steps and an audit trail of each action.</p>
+            <ul class="ticks">
+              <li>Employees and salary structure</li>
+              <li>Payroll periods and process payroll</li>
+              <li>Statutory deductions and payslips</li>
+              <li>Staff loans &amp; advances and recoveries</li>
+              <li>Payroll payments and payroll reports</li>
+              <li>Settings &amp; accounting: payroll posts to the general ledger</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of the BOAT payroll workflow">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">Payroll</span></div>
+            <div class="win-body single">
+              <div class="win-main">
+                <div class="wm-head"><div><small>Payroll hub</small><strong>Process payroll</strong></div><span class="wm-btn">Review &amp; approve</span></div>
+                <ol class="steps-mini">
+                  <li class="done">Employees</li><li class="done">Salary structure</li><li class="done">Payroll periods</li><li class="now">Process payroll</li><li>Review &amp; approve</li><li>Payments</li>
+                </ol>
+                <table class="tb">
+                  <thead><tr><th>Employee</th><th>Gross</th><th>Deductions</th><th>Net</th></tr></thead>
+                  <tbody>
+                    <tr><td>Staff member A</td><td>1,800,000</td><td>342,000</td><td>1,458,000</td></tr>
+                    <tr><td>Staff member B</td><td>1,250,000</td><td>212,500</td><td>1,037,500</td></tr>
+                    <tr><td>Staff member C</td><td>950,000</td><td>142,500</td><td>807,500</td></tr>
+                  </tbody>
+                </table>
+                <p class="balanced"><svg class="ic"><use href="#i-shield"/></svg>Audit trail records every step</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inventory -->
+        <div class="tab-panel" role="tabpanel" id="panel-stock" aria-labelledby="tab-stock" hidden>
+          <div class="feat-copy">
+            <h3>Inventory and stores</h3>
+            <p>Know what you have, where it is, and how it moved — from purchase to issue.</p>
+            <ul class="ticks">
+              <li>Products &amp; services and item settings</li>
+              <li>Stock balances, stock counts and adjustments</li>
+              <li>Store requisitions and stock issues</li>
+              <li>Barcodes for inventory items</li>
+              <li>Scheduled consumption (for school stores)</li>
+              <li>Stock summary, stock movement and inventory adjustment reports</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of BOAT stock balances">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">Stock balances</span></div>
+            <div class="win-body single">
+              <div class="win-main">
+                <div class="wm-head"><div><small>Inventory</small><strong>Stock balances &amp; counts</strong></div><span class="wm-btn ghost">Store requisitions</span></div>
+                <table class="tb">
+                  <thead><tr><th>Item</th><th>On hand</th><th>Unit</th><th>Status</th></tr></thead>
+                  <tbody>
+                    <tr><td>Exercise books</td><td>1,240</td><td>pcs</td><td><span class="tag ok">In stock</span></td></tr>
+                    <tr><td>Printing paper A4</td><td>36</td><td>reams</td><td><span class="tag warn">Low</span></td></tr>
+                    <tr><td>Maize flour</td><td>420</td><td>kg</td><td><span class="tag ok">In stock</span></td></tr>
+                    <tr><td>Cleaning detergent</td><td>8</td><td>litres</td><td><span class="tag warn">Low</span></td></tr>
+                  </tbody>
+                </table>
+                <div class="chips"><span class="on">Stock summary</span><span>Stock movement</span><span>Adjustments</span><span>Barcodes</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Migration & training -->
+        <div class="tab-panel" role="tabpanel" id="panel-migration" aria-labelledby="tab-migration" hidden>
+          <div class="feat-copy">
+            <h3>Data migration and BOAT Academy</h3>
+            <p>Bring your history in, then learn while you work. “Training is matched to your organization, modules and role.”</p>
+            <ul class="ticks">
+              <li>Import existing data from Excel or CSV with a preview before posting</li>
+              <li>Sync published Google Sheets</li>
+              <li>Post opening balances as a balanced journal</li>
+              <li>BOAT Academy &amp; Training Centre with lessons and guided practice</li>
+              <li>Protected practice environment, separate from live records</li>
+              <li>Knowledge checks and team training progress</li>
+            </ul>
+          </div>
+          <div class="win win-sm" role="img" aria-label="Recreation of BOAT data migration and Academy">
+            <div class="win-bar"><i></i><i></i><i></i><span class="win-url">Data migration</span></div>
+            <div class="win-body single">
+              <div class="win-main">
+                <div class="wm-head"><div><small>Import</small><strong>Data migration</strong><span class="wm-sub">Import existing data, sync published Google Sheets, and post opening balances.</span></div></div>
+                <div class="chips"><span class="on">Products &amp; services</span><span>Customers</span><span>Opening balances</span></div>
+                <div class="import">
+                  <div><b>Previewed 128 row(s).</b><span>124 ready · 4 to review</span></div>
+                  <span class="wm-btn">Import</span>
+                </div>
+                <div class="panel academy">
+                  <h4>BOAT Academy &amp; Training Centre</h4>
+                  <p>Learn BOAT while you work.</p>
+                  <div class="bar"><span style="--w:60%"></span></div>
+                  <div class="legend"><span>Learning progress</span><span>3 of 5 lessons</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Access & real app screen -->
+      <div class="wrap access">
+        <div class="access-shot">
+          <img src="/assets/boat-app-login.png" width="448" height="484" loading="lazy" alt="Screenshot of the live BOAT application sign-in screen showing Full Login, Member PIN, PIN and Create Account tabs.">
+        </div>
+        <div class="access-copy">
+          <p class="eyebrow">Live application access</p>
+          <h3>Sign in the way your staff work.</h3>
+          <ul class="ticks">
+            <li><b>Full login</b> with email and password for managers, accountants and bursars.</li>
+            <li><b>Staff PIN</b> for quick access at shared counters.</li>
+            <li><b>Member PIN</b> using a registered telephone number, for SACCO members.</li>
+            <li><b>BOAT Lite</b> — installable on phones as a lightweight web app.</li>
+            <li><b>Desktop local mode</b>, where accounts are stored on the computer and internet is optional, plus a server-backed mode for school networks.</li>
+          </ul>
+          <a class="btn btn-dark" data-app-link href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener" id="features-open-app">Open the BOAT app <svg class="ic"><use href="#i-external"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── WHY BOAT ───────────── -->
+    <section class="section why dark" id="why">
+      <div class="wrap section-head">
+        <p class="eyebrow">Why BOAT</p>
+        <h2>Software, plus the people to make it work.</h2>
+        <p class="muted">You don’t get a login and a manual. BOAT is delivered as a service: we set it up for your organization, teach your staff, and stay with you after go-live.</p>
+      </div>
+      <div class="wrap why-grid">
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-wrench"/></svg>
+          <h3>Professional installation</h3>
+          <p>The BOAT team installs the system for you — online, or as a desktop or school-server setup where that suits you better.</p>
+        </article>
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-sliders"/></svg>
+          <h3>Configuration</h3>
+          <p>We configure your workspace: chart of accounts, departments, staff roles and permissions, approval routes, and — for schools — classes, streams and fee structures.</p>
+        </article>
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-users"/></svg>
+          <h3>Staff training</h3>
+          <p>Your team is trained on the tasks they actually do, then keeps learning in BOAT Academy with guided practice in a protected training account.</p>
+        </article>
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-db"/></svg>
+          <h3>Optional data management</h3>
+          <p>Prefer not to move your records yourself? We import existing customers, items, students and balances from Excel, CSV or Google Sheets and post your opening balances.</p>
+        </article>
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-buoy"/></svg>
+          <h3>Ongoing support</h3>
+          <p>After go-live, the BOAT team remains your point of contact for questions, changes to your setup and help with the system.</p>
+        </article>
+        <article class="why-item">
+          <svg class="ic ic-lg" aria-hidden="true"><use href="#i-shield"/></svg>
+          <h3>Controls built in</h3>
+          <p>Role-based access, maker-checker approvals, reconciliations and period locks help keep records accurate and accountable.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ───────────── HOW IT WORKS ───────────── -->
+    <section class="section how" id="how">
+      <div class="wrap section-head">
+        <p class="eyebrow">How it works</p>
+        <h2>From first conversation to everyday use.</h2>
+        <p class="muted">Every implementation follows five structured stages so your team goes live cleanly without disrupting daily operations.</p>
+      </div>
+      <div class="wrap journey-wrap">
+        <div class="journey-track" aria-hidden="true"><span class="journey-fill" id="journey-fill"></span></div>
+        <ol class="journey" id="journey-list">
+          <li data-step="1"><span class="step">1</span><h3>Book a demo</h3><p>Tell us about your organization and pick a date. We walk you through BOAT using the workflows relevant to you.</p></li>
+          <li data-step="2"><span class="step">2</span><h3>Assessment</h3><p>We review how you work today — your accounts, processes, staff roles and existing records — and confirm scope and pricing.</p></li>
+          <li data-step="3"><span class="step">3</span><h3>System installation</h3><p>We install and configure BOAT for your organization and, if you choose data management, migrate your records.</p></li>
+          <li data-step="4"><span class="step">4</span><h3>Training</h3><p>Your staff are trained on their own tasks, supported by BOAT Academy lessons inside the app.</p></li>
+          <li data-step="5"><span class="step">5</span><h3>Monthly subscription</h3><p>You go live and continue on a monthly subscription, with ongoing support from the BOAT team.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ───────────── PRICING ───────────── -->
+    <section class="section pricing" id="pricing">
+      <div class="wrap section-head">
+        <p class="eyebrow">Pricing</p>
+        <h2>Clear prices in Ugandan shillings.</h2>
+        <p class="muted">BOAT pricing has two parts: a <b>one-time implementation fee</b> paid once to get you running, and a <b>monthly subscription</b> paid while you use the platform.</p>
+      </div>
+
+      <div class="wrap price-layout">
+        <!-- One-time -->
+        <article class="price-card once" aria-labelledby="once-title">
+          <header>
+            <span class="kind kind-once">One-time · Paid once</span>
+            <h3 id="once-title">Business implementation</h3>
+            <p class="muted">For small, medium-sized and large businesses.</p>
+          </header>
+          <ul class="lines">
+            <li><span>System setup</span><b>UGX 200,000</b></li>
+            <li><span>Staff training</span><b>UGX 200,000</b></li>
+            <li class="opt">
+              <label class="switch">
+                <input type="checkbox" id="dm-toggle">
+                <span class="track" aria-hidden="true"></span>
+                <span>Data management <small>(optional)</small></span>
+              </label>
+              <b>UGX 300,000</b>
+            </li>
+          </ul>
+          <div class="total">
+            <span>Implementation total</span>
+            <strong><span class="cur">UGX</span> <span id="impl-total">500,000</span></strong>
+            <small id="impl-note">Without data management · UGX 700,000 with it</small>
+          </div>
+        </article>
+
+        <!-- Monthly -->
+        <div class="monthly">
+          <div class="monthly-head">
+            <span class="kind kind-monthly">Recurring · Billed monthly</span>
+            <h3>Monthly subscriptions</h3>
+          </div>
+          <div class="sub-grid">
+            <article class="sub">
+              <h4>Small businesses</h4>
+              <p class="amt"><span class="cur">UGX</span> 50,000<small>/month</small></p>
+            </article>
+            <article class="sub">
+              <h4>Medium businesses</h4>
+              <p class="amt"><span class="cur">UGX</span> 100,000<small>/month</small></p>
+            </article>
+            <article class="sub sub-school">
+              <div class="sub-school-head">
+                <div>
+                  <h4>Schools</h4>
+                  <p class="amt"><span class="cur">UGX</span> 1,000<small>/student/month</small></p>
+                </div>
+                <label class="est" for="students">
+                  <span>Estimate for</span>
+                  <input type="number" id="students" inputmode="numeric" enterkeyhint="done" min="1" max="20000" step="1" value="500" aria-describedby="est-out">
+                  <span>students</span>
+                </label>
+              </div>
+              <div class="preset-row" role="group" aria-label="Quick student enrollment estimates">
+                <button type="button" class="preset-chip" data-students="250" aria-pressed="false">250 students</button>
+                <button type="button" class="preset-chip active" data-students="500" aria-pressed="true">500 students</button>
+                <button type="button" class="preset-chip" data-students="1000" aria-pressed="false">1,000 students</button>
+              </div>
+              <p class="est-out" id="est-out" aria-live="polite">≈ UGX 500,000 per month for 500 students</p>
+            </article>
+          </div>
+        </div>
+      </div>
+
+      <div class="wrap quote-row">
+        <article class="quote">
+          <div>
+            <span class="kind kind-once">One-time · Custom</span>
+            <h3>School implementation</h3>
+            <p>Priced to your school’s size and enrollment — generally <b>UGX 500,000 to UGX 3,000,000</b>. The exact amount is confirmed after the assessment.</p>
+          </div>
+          <a class="btn btn-ghost" href="#book" data-prefill-type="School" id="pricing-quote-school">Request a school quote</a>
+        </article>
+        <article class="quote">
+          <div>
+            <span class="kind kind-custom">Custom pricing</span>
+            <h3>Large organizations &amp; special requirements</h3>
+            <p>Need several departments, complex approvals or a setup that doesn’t fit the plans above? We’ll prepare a quote after understanding your needs.</p>
+          </div>
+          <a class="btn btn-ghost" href="#book" data-prefill-type="Large organization" id="pricing-quote-large">Request a quote</a>
+        </article>
+      </div>
+      <p class="wrap fine">All prices are in Ugandan shillings (UGX). Implementation fees are charged once; subscriptions recur monthly.</p>
+    </section>
+
+    <!-- ───────────── BOOK A DEMO ───────────── -->
+    <section class="section book" id="book">
+      <div class="wrap book-grid">
+        <div class="book-copy">
+          <p class="eyebrow">Book a demo</p>
+          <h2>See BOAT with your own workflows.</h2>
+          <p class="muted">Share a few details and your preferred date. The BOAT team will contact you to confirm a time and tailor the demo to your organization.</p>
+          <ul class="next">
+            <li><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><div><b>We confirm your slot</b><span>By email or phone, close to your preferred date.</span></div></li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-users"/></svg><div><b>A guided walkthrough</b><span>Focused on the areas you care about — fees, accounts, purchasing or payroll.</span></div></li>
+            <li><svg class="ic" aria-hidden="true"><use href="#i-sliders"/></svg><div><b>Next steps, if it fits</b><span>An assessment and a clear quote in UGX. No obligation.</span></div></li>
+          </ul>
+        </div>
+
+        <div class="form-card">
+          <form id="demo-form" novalidate>
+            <div class="form-alert" id="form-alert" role="alert" hidden></div>
+            <div class="grid-2">
+              <div class="field">
+                <label for="f-name">Full name <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <input id="f-name" name="name" type="text" autocomplete="name" enterkeyhint="next" required minlength="2" maxlength="100">
+                <p class="err" id="e-name"></p>
+              </div>
+              <div class="field">
+                <label for="f-org">Organization name <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <input id="f-org" name="organization" type="text" autocomplete="organization" enterkeyhint="next" required minlength="2" maxlength="150">
+                <p class="err" id="e-organization"></p>
+              </div>
+              <div class="field">
+                <label for="f-type">Organization type <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <div class="select">
+                  <select id="f-type" name="organizationType" required>
+                    <option value="" selected disabled>Select type</option>
+                    <option>Small business</option>
+                    <option>Medium-sized business</option>
+                    <option>Large organization</option>
+                    <option>School</option>
+                  </select>
+                  <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+                </div>
+                <p class="err" id="e-organizationType"></p>
+              </div>
+              <div class="field">
+                <label for="f-size">Organization size <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <div class="select">
+                  <select id="f-size" name="organizationSize" required>
+                    <option value="" selected disabled>Select type first</option>
+                  </select>
+                  <svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg>
+                </div>
+                <p class="err" id="e-organizationSize"></p>
+              </div>
+              <div class="field">
+                <label for="f-email">Email <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <input id="f-email" name="email" type="email" autocomplete="email" inputmode="email" autocapitalize="none" autocorrect="off" enterkeyhint="next" required maxlength="254">
+                <p class="err" id="e-email"></p>
+              </div>
+              <div class="field">
+                <label for="f-phone">Phone number <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <input id="f-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" enterkeyhint="next" placeholder="+256 7XX XXX XXX" required maxlength="25">
+                <p class="err" id="e-phone"></p>
+              </div>
+              <div class="field span-2">
+                <label for="f-date">Preferred demo date <span class="valid-mark" aria-hidden="true"><svg class="ic"><use href="#i-check"/></svg></span></label>
+                <input id="f-date" name="preferredDate" type="date" required>
+                <p class="err" id="e-preferredDate"></p>
+              </div>
+              <div class="field span-2">
+                <label for="f-msg">Message <span class="opt-label" id="msg-count">Optional</span></label>
+                <textarea id="f-msg" name="message" rows="4" maxlength="2000" enterkeyhint="send" placeholder="What would you like to see? e.g. school fees, purchasing approvals, payroll"></textarea>
+                <p class="err" id="e-message"></p>
+              </div>
+            </div>
+            <!-- Spam protection: honeypot (hidden from people, visible to bots) + time trap -->
+            <div class="hp" aria-hidden="true">
+              <label for="f-website">Website</label>
+              <input id="f-website" name="website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <input type="hidden" name="startedAt" id="f-started">
+            <button class="btn btn-primary btn-lg btn-block" type="submit" id="demo-submit">
+              <span class="btn-label">Book a demo</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+            <p class="privacy">We use your details only to arrange your demo and respond to your enquiry.</p>
+          </form>
+
+          <div class="success" id="form-success" hidden tabindex="-1">
+            <span class="success-ic" aria-hidden="true">
+              <svg class="check-draw" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
+            </span>
+            <h3>Your demo is booked.</h3>
+            <p>We’ve received your request for <b id="s-date"></b>. The BOAT team will contact you at <b id="s-email"></b> to confirm the time.</p>
+            <p class="ref">Reference <code id="s-ref"></code></p>
+            <button class="btn btn-ghost" type="button" id="book-another">Book another demo</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── FAQ ───────────── -->
+    <section class="section faq" id="faq">
+      <div class="wrap faq-grid">
+        <div>
+          <p class="eyebrow">FAQ</p>
+          <h2>Common questions.</h2>
+          <p class="muted">Can’t find your answer? <a class="u-link" href="#book">Book a demo</a> and ask us directly.</p>
+        </div>
+        <div class="faq-list" id="faq-list">
+          <details>
+            <summary>What does installation involve?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>The BOAT team sets up your organization’s workspace and configures it — chart of accounts, departments, staff accounts and roles, approval routes and, for schools, classes, streams and fee structures. Business system setup is a one-time UGX 200,000.</p></div>
+          </details>
+          <details>
+            <summary>How is staff training delivered?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>We train your staff on the tasks they perform in BOAT. After training, BOAT Academy inside the app provides lessons matched to each person’s role, guided practice in a protected training account, and knowledge checks. Business staff training is a one-time UGX 200,000.</p></div>
+          </details>
+          <details>
+            <summary>What is data management, and do I need it?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>Data management is an optional service where we move your existing records into BOAT for you — for example customers, suppliers, items, students and opening balances — from Excel, CSV or Google Sheets. It costs a one-time UGX 300,000 for businesses. If you prefer, your team can import data using BOAT’s data migration tools instead.</p></div>
+          </details>
+          <details>
+            <summary>What’s the difference between the implementation fee and the subscription?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>The implementation fee is paid <b>once</b> to set up BOAT and train your staff: UGX 500,000 for businesses, or UGX 700,000 including data management. The subscription is paid <b>every month</b> while you use BOAT: UGX 50,000 for small businesses, UGX 100,000 for medium businesses and UGX 1,000 per student for schools.</p></div>
+          </details>
+          <details>
+            <summary>How is school pricing calculated?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>Schools pay a monthly subscription of UGX 1,000 per student — a school with 500 students pays about UGX 500,000 per month. School implementation is priced to the school’s size and enrollment, generally between UGX 500,000 and UGX 3,000,000, and confirmed after the assessment.</p></div>
+          </details>
+          <details>
+            <summary>What support do we get after going live?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>The BOAT team continues to support you after installation and training — answering questions, helping with the system and adjusting your setup as your organization changes. Support arrangements are confirmed with you during the assessment.</p></div>
+          </details>
+          <details>
+            <summary>Do large organizations have a fixed price?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>No. Large organizations and those with special requirements receive a custom quote after an assessment. <a class="u-link" href="#book" data-prefill-type="Large organization">Request a quote</a>.</p></div>
+          </details>
+          <details>
+            <summary>Can BOAT work with unreliable internet?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>BOAT has a desktop local mode in which accounts are stored on the computer and internet is optional, and a server-backed mode for school networks. We’ll recommend the right setup during your assessment.</p></div>
+          </details>
+          <details>
+            <summary>Who can see our financial information?<svg class="ic" aria-hidden="true"><use href="#i-chev"/></svg></summary>
+            <div class="faq-body"><p>Access is controlled by staff roles and permissions. For example, the school dashboard shows students, fees and collections to staff, while detailed accounting remains available only to authorized roles.</p></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA band -->
+    <section class="cta-band">
+      <div class="wrap cta-inner">
+        <h2>Ready to see BOAT in action?</h2>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="#book" id="cta-book-demo">Book a demo <svg class="ic"><use href="#i-arrow"/></svg></a>
+          <a class="btn btn-on-dark btn-lg" href="#pricing" id="cta-pricing">View pricing</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ───────────── CONTACT & FOOTER ───────────── -->
+  <footer class="site-footer" id="contact">
+    <div class="wrap footer-grid">
+      <div class="f-brand">
+        <a class="brand brand-light" href="#top" aria-label="BOAT home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="78 70 244 300"><rect x="194" y="84" width="12" height="178" rx="6" fill="#38BDF8"/><path d="M206 86L298 224H206V86Z" fill="#22D3EE"/><path d="M206 142L134 250H206V142Z" fill="#67E8F9"/><path d="M78 286H322C301 328 260 356 200 356C140 356 99 328 78 286Z" fill="#14B8A6"/></svg>
+          </span>
+          <span class="brand-word">BOAT</span>
+        </a>
+        <p>Business Operations Automation Technologies — financial management and accounting for businesses and schools.</p>
+        <a class="btn btn-on-dark btn-sm" data-app-link href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener" id="footer-open-app">Open BOAT app <svg class="ic"><use href="#i-external"/></svg></a>
+      </div>
+
+      <div>
+        <h4>Contact</h4>
+        <ul class="f-contact" id="contact-list">
+          <li class="f-static"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg><span>Serving organizations in <span data-region>Uganda</span></span></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-calendar"/></svg><a class="u-link" href="#book">Book a demo</a></li>
+          <li><svg class="ic" aria-hidden="true"><use href="#i-mail"/></svg><a class="u-link" href="#book" data-prefill-type="Large organization">Request a quote</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Explore</h4>
+        <ul class="f-links">
+          <li><a class="u-link" href="#solutions">Solutions</a></li>
+          <li><a class="u-link" href="#features">Features</a></li>
+          <li><a class="u-link" href="#why">Why BOAT</a></li>
+          <li><a class="u-link" href="#how">How it works</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h4>Get started</h4>
+        <ul class="f-links">
+          <li><a class="u-link" href="#pricing">Pricing</a></li>
+          <li><a class="u-link" href="#book">Book a demo</a></li>
+          <li><a class="u-link" href="#faq">FAQ</a></li>
+          <li><a class="u-link" data-app-link href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener">Sign in to BOAT</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="wrap footer-base">
+      <span>© <span id="year">2026</span> BOAT · Business Operations Automation Technologies</span>
+      <span>All prices in UGX · Figures in workspace previews are illustrative</span>
+    </div>
+  </footer>
+</body>
+</html>
