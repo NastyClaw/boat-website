@@ -7,16 +7,19 @@
   <meta name="robots" content="noindex">
   <meta name="theme-color" content="#ffffff">
   <link rel="icon" type="image/svg+xml" href="/assets/boat-logo-square.svg">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <main class="notfound">
+  <main class="wrap center" style="min-height:100svh; display:grid; place-items:center; padding-block:64px">
     <div>
-      <p class="eyebrow">404</p>
-      <h1>This page doesn’t exist.</h1>
-      <p>The link may be broken, or the page may have moved.</p>
-      <a class="btn btn-primary btn-lg" href="/">Back to BOAT</a>
+      <p class="eyebrow">404 · Page not found</p>
+      <h1 style="font-size:clamp(2.2rem,5vw,3.4rem)"><span style="font-weight:300">We couldn’t find</span> that page.</h1>
+      <p class="lead" style="margin-top:14px">The link may be outdated, or the page may have moved.</p>
+      <div class="hero-ctas" style="margin-top:28px">
+        <a class="btn btn-mint" href="/">Back to BOAT</a>
+        <a class="btn btn-ghost" href="/#book">Book a demo</a>
+      </div>
     </div>
   </main>
 </body>

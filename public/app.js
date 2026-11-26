@@ -1,577 +1,821 @@
 (() => {
   'use strict';
-  const $ = (s, el = document) => el.querySelector(s);
-  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
-  const fmt = (n) => Number(n).toLocaleString('en-UG', { maximumFractionDigits: 0 });
-  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const prefersReducedMotion = () =>
+    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const formatUGX = (n) => 'UGX ' + Math.round(n).toLocaleString('en-US');
+
+  function animateValue(el, from, to, duration = 220, formatter = formatUGX) {
+    if (!el) return;
+    if (prefersReducedMotion() || from === to) {
+      el.textContent = formatter(to);
+      return;
+    }
+    const start = performance.now();
+    const step = (now) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = formatter(from + (to - from) * eased);
+      if (t < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+
+  /* =========================================================
+     1. Public Site Config (site-config.js)
+     ========================================================= */
   const cfg = window.BOAT_SITE || {};
+  if (cfg.appUrl) {
+    document.querySelectorAll('.js-app-link').forEach((a) => {
+      a.href = cfg.appUrl;
+    });
+  }
+  const regionEl = document.getElementById('site-region');
+  if (regionEl && cfg.region) regionEl.textContent = cfg.region;
 
-  /* ---------- Site config ---------- */
-  if (cfg.appUrl) $$('[data-app-link]').forEach((a) => (a.href = cfg.appUrl));
-  if (cfg.region) $$('[data-region]').forEach((el) => (el.textContent = cfg.region));
-  const c = cfg.contact || {};
-  const list = $('#contact-list');
-  const esc = (s) => String(s).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
-  const addContact = (icon, html) => {
-    const li = document.createElement('li');
-    li.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#i-${icon}"/></svg>${html}`;
-    list.appendChild(li);
-  };
-  if (c.phone) addContact('phone', `<a class="u-link" href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>`);
-  if (c.whatsapp) addContact('phone', `<a class="u-link" href="https://wa.me/${esc(c.whatsapp.replace(/\D/g, ''))}" target="_blank" rel="noopener">WhatsApp</a>`);
-  if (c.email) addContact('mail', `<a class="u-link" href="mailto:${esc(c.email)}">${esc(c.email)}</a>`);
-  if (c.address) addContact('pin', `<span>${esc(c.address)}</span>`);
-  if (c.hours) addContact('calendar', `<span>${esc(c.hours)}</span>`);
-  $('#year').textContent = new Date().getFullYear();
+  const yearEl = document.getElementById('footer-year');
+  if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  /* ---------- Header & Mobile Drawer ---------- */
-  const header = $('.site-header');
-  const onScroll = () => header.classList.toggle('scrolled', window.scrollY > 8);
-  onScroll();
-  window.addEventListener('scroll', onScroll, { passive: true });
+  const contactList = document.getElementById('public-contact-list');
+  if (contactList && cfg.contact) {
+    const items = [];
+    const c = cfg.contact;
+    if (c.phone) {
+      const tel = c.phone.replace(/[^\d+]/g, '');
+      items.push({ label: 'Phone', text: c.phone, href: `tel:${tel}` });
+    }
+    if (c.whatsapp) {
+      const wa = c.whatsapp.replace(/\D/g, '');
+      items.push({ label: 'WhatsApp', text: `+${wa}`, href: `https://wa.me/${wa}` });
+    }
+    if (c.email) {
+      items.push({ label: 'Enquiries', text: c.email, href: `mailto:${c.email}` });
+    }
+    if (c.address) items.push({ label: 'Office', text: c.address });
+    if (c.hours) items.push({ label: 'Hours', text: c.hours });
 
-  const nav = $('#site-nav');
-  const menuBtn = $('#menu-toggle');
-  const setMenu = (open) => {
-    nav.classList.toggle('open', open);
+    if (items.length > 0) {
+      contactList.innerHTML = '';
+      items.forEach((it) => {
+        const li = document.createElement('li');
+        const strong = document.createElement('strong');
+        strong.textContent = `${it.label}: `;
+        li.appendChild(strong);
+        if (it.href) {
+          const a = document.createElement('a');
+          a.href = it.href;
+          if (it.href.startsWith('http')) {
+            a.target = '_blank';
+            a.rel = 'noopener noreferrer';
+          }
+          a.textContent = it.text;
+          li.appendChild(a);
+        } else {
+          li.appendChild(document.createTextNode(it.text));
+        }
+        contactList.appendChild(li);
+      });
+      contactList.hidden = false;
+    }
+  }
+
+  /* =========================================================
+     2. Mobile Navigation Drawer
+     ========================================================= */
+  const menuBtn = document.getElementById('menu-toggle');
+  const drawer = document.getElementById('mobile-drawer');
+  const menuIconPath = document.getElementById('menu-icon-path');
+  let drawerTimer = null;
+
+  function setDrawerOpen(open) {
+    if (!menuBtn || !drawer) return;
+    clearTimeout(drawerTimer);
     menuBtn.setAttribute('aria-expanded', String(open));
     menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
-    menuBtn.querySelector('use').setAttribute('href', open ? '#i-x' : '#i-menu');
-    document.body.style.overflow = open ? 'hidden' : '';
-  };
-  menuBtn.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
-  nav.addEventListener('click', (e) => { if (e.target.closest('a')) setMenu(false); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && nav.classList.contains('open')) { setMenu(false); menuBtn.focus(); } });
-  window.matchMedia('(min-width: 941px)').addEventListener('change', (m) => m.matches && setMenu(false));
-
-  const navLinks = $$('.nav > a');
-  const sections = navLinks.map((a) => $(a.getAttribute('href'))).filter(Boolean);
-  if ('IntersectionObserver' in window) {
-    const so = new IntersectionObserver((entries) => {
-      entries.forEach((en) => {
-        if (en.isIntersecting) navLinks.forEach((a) => a.classList.toggle('active', a.getAttribute('href') === '#' + en.target.id));
+    if (menuIconPath) {
+      menuIconPath.setAttribute('d', open ? 'M5 5L15 15M15 5L5 15' : 'M3 6H17M3 10H17M3 14H17');
+    }
+    if (open) {
+      drawer.hidden = false;
+      requestAnimationFrame(() => {
+        drawer.dataset.open = 'true';
       });
-    }, { rootMargin: '-45% 0px -50% 0px' });
-    sections.forEach((s) => so.observe(s));
+    } else {
+      drawer.dataset.open = 'false';
+      drawerTimer = setTimeout(() => {
+        drawer.hidden = true;
+      }, 220);
+    }
   }
 
-  /* ---------- Hero Interactive Application Workspace ---------- */
-  const HERO_VIEWS = {
-    business: {
-      org: 'Lake View Traders · General Business',
-      mode: 'General Business mode',
-      title: 'Business dashboard',
-      period: 'Period · Nov 2026',
-      kpis: [
-        ['Sales this month', 'UGX 18,450,000', false],
-        ['Expenses this month', 'UGX 9,120,500', false],
-        ['Customers owing', 'UGX 3,760,000', false],
-        ['Suppliers to pay', 'UGX 2,215,000', true],
-      ],
-      chartTitle: 'Monthly inflows vs. spending',
-      bars: [
-        ['Jun', 58, 34, 'Jun · UGX 12.4M in / 7.1M out'],
-        ['Jul', 66, 39, 'Jul · UGX 14.1M in / 8.0M out'],
-        ['Aug', 62, 36, 'Aug · UGX 13.6M in / 7.4M out'],
-        ['Sep', 76, 43, 'Sep · UGX 16.2M in / 8.8M out'],
-        ['Oct', 81, 41, 'Oct · UGX 17.0M in / 8.5M out'],
-        ['Nov', 90, 45, 'Nov · UGX 18.45M in / 9.12M out'],
-      ],
-      tableTitle: 'Recent cashbook & ledger entries',
-      headers: ['Ref', 'Entry', 'Channel', 'Amount (UGX)'],
-      rows: [
-        ['RCP-1048', 'Customer invoice receipt', 'MTN MoMo', '+1,450,000'],
-        ['PV-0392', 'Approved supplier settlement', 'Bank', '−820,000'],
-        ['RCP-1049', 'Counter quick sale batch', 'Cash', '+640,000'],
-        ['JNL-0114', 'Monthly utilities accrual', 'Journal', '−295,000'],
-      ],
-    },
-    school: {
-      org: 'Kampala Horizon School · School Bursar',
-      mode: 'School finance operations',
-      title: 'School dashboard',
-      period: 'Term 3 · 642 Students',
-      kpis: [
-        ['Term fees billed', 'UGX 272,900,000', false],
-        ['Fees collected', 'UGX 214,600,000', true],
-        ['Unpaid balances', 'UGX 58,300,000', false],
-        ['Available cash & bank', 'UGX 94,180,000', false],
-      ],
-      chartTitle: 'Fee collection rate by class group',
-      bars: [
-        ['Nur', 71, 29, 'Nursery · 71% collected (UGX 36.2M)'],
-        ['P.1–3', 75, 25, 'P.1–P.3 · 75% collected (UGX 44.5M)'],
-        ['P.4', 77, 23, 'Primary 4 · 77% collected (UGX 27.6M)'],
-        ['P.5', 79, 21, 'Primary 5 · 79% collected (UGX 54.2M)'],
-        ['P.6', 82, 18, 'Primary 6 · 82% collected (UGX 53.9M)'],
-        ['P.7', 88, 12, 'Primary 7 · 88% collected (UGX 48.15M)'],
-      ],
-      tableTitle: 'Recent student fee receipts & vote items',
-      headers: ['Receipt', 'Student / Vote', 'Method', 'Amount (UGX)'],
-      rows: [
-        ['SFR-8821', 'P.7A · Term 3 tuition balance', 'SchoolPay / Bank', '+650,000'],
-        ['SFR-8822', 'P.5B · Boarding & meals installment', 'Airtel Money', '+420,000'],
-        ['VB-0209', 'Laboratory supplies vote release', 'Bank transfer', '−1,150,000'],
-        ['SFR-8823', 'P.3A · Tuition receipt', 'MTN MoMo', '+380,000'],
-      ],
-    },
-    approvals: {
-      org: 'Nile Valley Group · Procure-to-Pay',
-      mode: 'Payments, reporting & assurance',
-      title: 'Approval & reconciliation centre',
-      period: 'Close · Open period',
-      kpis: [
-        ['Collected this period', 'UGX 96,400,000', false],
-        ['Approved expenditure', 'UGX 41,200,000', false],
-        ['Cash & bank verified', 'UGX 55,200,000', false],
-        ['Awaiting checker sign-off', '3 vouchers', true],
-      ],
-      chartTitle: 'Budget vs. actual spend by department',
-      bars: [
-        ['Ops', 74, 68, 'Operations · UGX 14.2M actual / 15.5M budget'],
-        ['Store', 64, 61, 'Stores · UGX 9.8M actual / 10.4M budget'],
-        ['Admin', 52, 49, 'Admin · UGX 6.4M actual / 6.8M budget'],
-        ['Fleet', 69, 58, 'Transport · UGX 5.9M actual / 7.0M budget'],
-        ['IT', 40, 38, 'Systems · UGX 2.4M actual / 2.6M budget'],
-        ['Maint', 46, 44, 'Maintenance · UGX 2.5M actual / 2.7M budget'],
-      ],
-      tableTitle: 'Maker-checker approval queue',
-      headers: ['Voucher', 'Item & 3-way match', 'Stage', 'Amount (UGX)'],
-      rows: [
-        ['BILL-219', 'PO-088 / GRN-084 stationery', 'Matched', '3,450,000'],
-        ['EXP-402', 'Generator fuel requisition', 'Checker', '680,000'],
-        ['PAY-115', 'Approved supplier release', 'Sign-off', '6,120,000'],
-        ['PCV-067', 'Petty cash float count', 'Verified', '500,000'],
-      ],
-    },
-  };
-
-  const heroBtns = $$('#hero-switcher [role="tab"]');
-  const heroCanvas = $('#hero-win-content');
-  const chartReadout = $('#chart-readout');
-  const heroBars = $('#hero-bars');
-  let heroTimer = null;
-
-  const bindBarHover = () => {
-    const cols = $$('.bc-col', heroBars);
-    cols.forEach((col) => {
-      const activate = () => {
-        cols.forEach((c) => c.classList.toggle('active', c === col));
-        chartReadout.textContent = col.dataset.label || '';
-      };
-      col.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') activate(); });
-      col.addEventListener('click', activate);
-      col.addEventListener('focus', activate);
+  if (menuBtn && drawer) {
+    menuBtn.addEventListener('click', () => {
+      const isOpen = menuBtn.getAttribute('aria-expanded') === 'true';
+      setDrawerOpen(!isOpen);
     });
-  };
-  bindBarHover();
-
-  const renderHeroView = (key) => {
-    const v = HERO_VIEWS[key];
-    if (!v) return;
-    $('#af-org-name').textContent = v.org;
-    $('#hw-mode').textContent = v.mode;
-    $('#hw-title').textContent = v.title;
-    $('#hw-period').textContent = v.period;
-    $('#hw-kpis').innerHTML = v.kpis
-      .map(([lbl, val, hi]) => `<div class="afm${hi ? ' afm-highlight' : ''}"><span>${esc(lbl)}</span><strong class="mono">${esc(val)}</strong></div>`)
-      .join('');
-    $('#hw-chart-title').textContent = v.chartTitle;
-    heroBars.innerHTML = v.bars
-      .map(([m, hIn, hOut, label], idx) => `<button type="button" class="bc-col${idx === v.bars.length - 1 ? ' active' : ''}" data-label="${esc(label)}"><span class="bc-in" style="--h:${hIn}%"></span><span class="bc-out" style="--h:${hOut}%"></span><em>${esc(m)}</em></button>`)
-      .join('');
-    chartReadout.textContent = v.bars[v.bars.length - 1][3];
-    bindBarHover();
-
-    $('#hw-table-title').textContent = v.tableTitle;
-    $('#hw-table').innerHTML = `
-      <thead><tr>${v.headers.map((h) => `<th>${esc(h)}</th>`).join('')}</tr></thead>
-      <tbody>${v.rows.map(([r0, r1, r2, r3]) => `<tr><td class="mono">${esc(r0)}</td><td>${esc(r1)}</td><td>${esc(r2)}</td><td class="mono">${esc(r3)}</td></tr>`).join('')}</tbody>`;
-    $$('.af-sidebar .afs-item').forEach((el) => el.classList.toggle('active', el.dataset.side === key));
-  };
-
-  const switchHeroView = (btn, instant = false) => {
-    const key = btn.dataset.heroView;
-    heroBtns.forEach((b) => {
-      const on = b === btn;
-      b.setAttribute('aria-selected', String(on));
-      b.tabIndex = on ? 0 : -1;
+    drawer.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => setDrawerOpen(false));
     });
-    clearTimeout(heroTimer);
-    if (instant || reduceMotion()) {
-      heroCanvas.classList.remove('swapping');
-      renderHeroView(key);
-      return;
-    }
-    heroCanvas.classList.add('swapping');
-    heroTimer = setTimeout(() => {
-      renderHeroView(key);
-      requestAnimationFrame(() => heroCanvas.classList.remove('swapping'));
-    }, 85);
-  };
-
-  heroBtns.forEach((btn, i) => {
-    btn.addEventListener('click', () => switchHeroView(btn, false));
-    btn.addEventListener('keydown', (e) => {
-      const map = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: heroBtns.length - 1 };
-      if (e.key in map) {
-        e.preventDefault();
-        const next = heroBtns[(map[e.key] + heroBtns.length) % heroBtns.length];
-        switchHeroView(next, true);
-        next.focus();
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menuBtn.getAttribute('aria-expanded') === 'true') {
+        setDrawerOpen(false);
+        menuBtn.focus();
       }
     });
-  });
+    document.addEventListener('click', (e) => {
+      if (
+        menuBtn.getAttribute('aria-expanded') === 'true' &&
+        !drawer.contains(e.target) &&
+        !menuBtn.contains(e.target)
+      ) {
+        setDrawerOpen(false);
+      }
+    });
+  }
 
-  /* ---------- Feature Tabs + Sliding Ink Pill ---------- */
-  const tabList = $('#feature-tabs');
-  const tabs = $$('[role="tab"]', tabList);
-  const indicator = $('#tab-indicator');
+  /* =========================================================
+     3. ScrollReveal & Active Nav Highlight
+     ========================================================= */
+  const revealEls = document.querySelectorAll('.reveal');
+  if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
+    revealEls.forEach((el) => el.classList.add('is-visible'));
+  } else {
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      },
+      { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+    );
+    revealEls.forEach((el) => io.observe(el));
+  }
 
-  const moveIndicator = (tab, instant = false) => {
-    if (!tab || !indicator || !tabList) return;
-    if (instant || reduceMotion()) indicator.classList.add('no-anim');
-    const pad = 4;
-    const innerW = tabList.clientWidth - pad * 2;
-    const left = Math.max(0, tab.offsetLeft - pad);
-    const right = Math.max(0, innerW - (left + tab.offsetWidth));
-    indicator.style.clipPath = `inset(0 ${right}px 0 ${left}px round 7px)`;
-    if (instant || reduceMotion()) {
-      requestAnimationFrame(() => indicator.classList.remove('no-anim'));
-    }
+  const navLinks = Array.from(document.querySelectorAll('.primary-nav .nav-link'));
+  const navTargets = navLinks
+    .map((link) => {
+      const id = link.getAttribute('href')?.slice(1);
+      const sec = id ? document.getElementById(id) : null;
+      return sec ? { link, sec } : null;
+    })
+    .filter(Boolean);
+
+  if ('IntersectionObserver' in window && navTargets.length) {
+    const navObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            navLinks.forEach((l) => l.removeAttribute('aria-current'));
+            const match = navTargets.find((t) => t.sec === entry.target);
+            if (match) match.link.setAttribute('aria-current', 'true');
+          }
+        });
+      },
+      { rootMargin: '-28% 0px -58% 0px', threshold: 0 }
+    );
+    navTargets.forEach((t) => navObserver.observe(t.sec));
+  }
+
+  /* =========================================================
+     4. Hero Micro-Interactions: Money Rails & Sparkline Scrub
+     ========================================================= */
+  const railData = {
+    all: { label: 'Cash, MoMo & bank accounts', kpi: 'UGX 46.8M', tag: '' },
+    Cash: { label: 'Physical cash drawers & petty cash', kpi: 'UGX 6.4M', tag: 'CASH' },
+    'MTN MoMo': { label: 'MTN MoMo merchant & fee collections', kpi: 'UGX 14.2M', tag: 'MTN' },
+    'Airtel Money': { label: 'Airtel Money collections', kpi: 'UGX 8.1M', tag: 'AIRTEL' },
+    Bank: { label: 'Reconciled UGX bank accounts', kpi: 'UGX 16.0M', tag: 'BANK' },
+    Cheque: { label: 'Cleared & pending cheques', kpi: 'UGX 2.1M', tag: 'CHEQUE' },
+    Excel: { label: 'Opening balances imported via Excel/CSV', kpi: 'Balanced', tag: 'IMPORT' },
   };
 
-  const selectTab = (tab, { focus = true, instant = false } = {}) => {
-    tabs.forEach((t) => {
-      const on = t === tab;
-      t.setAttribute('aria-selected', String(on));
-      t.tabIndex = on ? 0 : -1;
-      const panel = $('#' + t.getAttribute('aria-controls'));
-      if (on) {
-        panel.hidden = false;
-        if (!instant && !reduceMotion()) {
-          panel.classList.add('entering');
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => panel.classList.remove('entering'));
-          });
+  const railButtons = document.querySelectorAll('.rail-pill');
+  const heroEntries = document.querySelectorAll('#hero-entries .entry-row');
+  const cashSub = document.getElementById('cash-sub');
+  const cashKpi = document.getElementById('cash-kpi');
+  const cashTag = document.getElementById('cash-rail-tag');
+
+  railButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const rail = btn.dataset.rail || 'all';
+      railButtons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+
+      const info = railData[rail] || railData.all;
+      if (cashSub) cashSub.textContent = info.label;
+      if (cashKpi) cashKpi.textContent = info.kpi;
+      if (cashTag) {
+        if (info.tag) {
+          cashTag.textContent = info.tag;
+          cashTag.hidden = false;
         } else {
-          panel.classList.remove('entering');
+          cashTag.hidden = true;
         }
-      } else {
-        panel.hidden = true;
-        panel.classList.remove('entering');
       }
-    });
-    moveIndicator(tab, instant);
-    if (focus) tab.focus();
-    tab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: instant || reduceMotion() ? 'auto' : 'smooth' });
-  };
 
-  tabs.forEach((t, i) => {
-    t.addEventListener('click', () => selectTab(t, { focus: false, instant: false }));
-    t.addEventListener('keydown', (e) => {
-      const map = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: tabs.length - 1 };
-      if (e.key in map) {
-        e.preventDefault();
-        selectTab(tabs[(map[e.key] + tabs.length) % tabs.length], { focus: true, instant: true });
-      }
+      heroEntries.forEach((row) => {
+        const channels = row.dataset.channel || '';
+        if (rail === 'all') {
+          row.dataset.dimmed = 'false';
+          row.dataset.highlighted = 'false';
+        } else if (channels.includes(rail)) {
+          row.dataset.dimmed = 'false';
+          row.dataset.highlighted = 'true';
+        } else {
+          row.dataset.dimmed = 'true';
+          row.dataset.highlighted = 'false';
+        }
+      });
     });
   });
 
-  const syncActiveIndicator = () => {
-    const active = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
-    moveIndicator(active, true);
-  };
-  syncActiveIndicator();
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(syncActiveIndicator);
-  window.addEventListener('resize', syncActiveIndicator, { passive: true });
+  // Interactive hover scrub on Cash & bank sparkline
+  const sparkSvg = document.getElementById('cash-spark');
+  const sparkDot = document.getElementById('spark-dot');
+  const sparkTooltip = document.getElementById('spark-tooltip');
+  const sparkPoints = [
+    { x: 2, y: 46, label: 'Wk 1 · UGX 34.2M' },
+    { x: 32, y: 39, label: 'Wk 2 · UGX 37.5M' },
+    { x: 62, y: 44, label: 'Wk 3 · UGX 35.9M' },
+    { x: 92, y: 26, label: 'Wk 4 · UGX 41.0M' },
+    { x: 122, y: 23, label: 'Wk 5 · UGX 42.4M' },
+    { x: 152, y: 25, label: 'Wk 6 · UGX 41.8M' },
+    { x: 182, y: 18, label: 'Wk 7 · UGX 44.6M' },
+    { x: 214, y: 12, label: 'Wk 8 · UGX 46.8M' },
+  ];
 
-  /* ---------- How It Works Pointer Rail ---------- */
-  const journeySteps = $$('#journey-list li');
-  const journeyFill = $('#journey-fill');
-  if (journeyFill && journeySteps.length) {
-    const setStep = (idx) => {
-      journeyFill.style.transform = `scaleX(${(idx + 1) / journeySteps.length})`;
-      journeySteps.forEach((li, i) => li.classList.toggle('step-active', i <= idx));
-    };
-    setStep(0);
-    journeySteps.forEach((li, i) => {
-      li.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') setStep(i); });
+  if (sparkSvg && sparkDot && sparkTooltip) {
+    sparkSvg.addEventListener('pointermove', (e) => {
+      const rect = sparkSvg.getBoundingClientRect();
+      if (!rect.width) return;
+      const relX = ((e.clientX - rect.left) / rect.width) * 220;
+      let nearest = sparkPoints[sparkPoints.length - 1];
+      let bestDist = Infinity;
+      sparkPoints.forEach((pt) => {
+        const d = Math.abs(pt.x - relX);
+        if (d < bestDist) {
+          bestDist = d;
+          nearest = pt;
+        }
+      });
+      sparkDot.setAttribute('cx', String(nearest.x));
+      sparkDot.setAttribute('cy', String(nearest.y));
+      sparkTooltip.textContent = nearest.label;
+      sparkTooltip.dataset.visible = 'true';
     });
-    $('#journey-list').addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse') setStep(0); });
+
+    sparkSvg.addEventListener('pointerleave', () => {
+      const last = sparkPoints[sparkPoints.length - 1];
+      sparkDot.setAttribute('cx', String(last.x));
+      sparkDot.setAttribute('cy', String(last.y));
+      sparkTooltip.dataset.visible = 'false';
+    });
   }
 
-  /* ---------- Pricing Schedule Interactions ---------- */
-  const dm = $('#dm-toggle');
-  const total = $('#impl-total');
-  const note = $('#impl-note');
-  let dmTimer = null;
-
-  dm.addEventListener('change', () => {
-    const on = dm.checked;
-    dm.closest('li').classList.toggle('on', on);
-    note.textContent = on
-      ? 'Includes optional data management · UGX 500,000 without it'
-      : 'Without data management · UGX 700,000 with optional data management';
-    clearTimeout(dmTimer);
-    if (reduceMotion()) {
-      total.textContent = fmt(on ? 700000 : 500000);
-      return;
-    }
-    total.classList.add('updating');
-    dmTimer = setTimeout(() => {
-      total.textContent = fmt(on ? 700000 : 500000);
-      requestAnimationFrame(() => total.classList.remove('updating'));
-    }, 75);
-  });
-
-  const students = $('#students');
-  const estOut = $('#est-out');
-  const presetChips = $$('.preset-chip');
-
-  const updateEst = () => {
-    const n = Math.max(0, Math.floor(Number(students.value) || 0));
-    estOut.textContent = n > 0
-      ? `${fmt(n)} students = UGX ${fmt(n * 1000)} / month`
-      : 'Enter student enrollment to calculate monthly subscription';
-    presetChips.forEach((chip) => {
-      const match = Number(chip.dataset.students) === n;
-      chip.classList.toggle('active', match);
-      chip.setAttribute('aria-pressed', String(match));
-    });
+  /* =========================================================
+     5. Product Section Interactive Previews (#product)
+     ========================================================= */
+  const bizViews = {
+    sales: {
+      m1: ['Today’s receipts', 'UGX 3,480,000'],
+      m2: ['Mobile money', 'UGX 2,150,000'],
+      m3: ['Cash drawer', 'UGX 1,330,000'],
+      rows: [
+        ['POS #1084 · Counter wholesale', 'Receipt issued · Posted to Sales', 'MTN MoMo', 'is-mint', '+1,250,000', true],
+        ['INV-0392 · Clinic supply order', 'Part-payment received', 'Airtel Money', 'is-mint', '+900,000', true],
+        ['POS #1085 · Walk-in cash batch', 'Drawer reconciled', 'Cash', '', '+1,330,000', true],
+      ],
+    },
+    owing: {
+      m1: ['Customers owing', 'UGX 8,920,000'],
+      m2: ['Due this week', 'UGX 3,100,000'],
+      m3: ['Open invoices', '14 active'],
+      rows: [
+        ['INV-0388 · Kampala Hardware Ltd', 'Due in 4 days · Statement sent', 'Credit sale', 'is-amber', 'UGX 2,400,000', false],
+        ['INV-0391 · Sunrise Pharmacy', 'Part-paid UGX 1.5M · Balance open', 'MTN MoMo', '', 'UGX 700,000', false],
+        ['INV-0379 · Metro Catering', 'Scheduled bank settlement', 'Bank', '', 'UGX 1,850,000', false],
+      ],
+    },
+    expenses: {
+      m1: ['Money Out (week)', 'UGX 2,190,000'],
+      m2: ['Suppliers to pay', 'UGX 4,600,000'],
+      m3: ['Vouchers posted', '19 entries'],
+      rows: [
+        ['EXP-0214 · Electricity & water', 'Receipt attached · Utilities', 'MTN MoMo', '', '−420,000', false],
+        ['EXP-0215 · Delivery fuel & riders', 'Approved petty cash voucher', 'Cash', '', '−310,000', false],
+        ['BILL-0109 · Packaging supplier', 'Matched to GRN #184', 'Bank transfer', 'is-mint', '−1,460,000', false],
+      ],
+    },
   };
-  students.addEventListener('input', updateEst);
-  presetChips.forEach((chip) => {
-    chip.addEventListener('click', () => {
-      students.value = chip.dataset.students;
-      updateEst();
+
+  const bizTabs = document.querySelectorAll('[data-biz-tab]');
+  const bizRowsEl = document.getElementById('biz-rows');
+  bizTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const key = tab.dataset.bizTab;
+      const view = bizViews[key];
+      if (!view || !bizRowsEl) return;
+      bizTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+
+      document.getElementById('biz-m1-label').textContent = view.m1[0];
+      document.getElementById('biz-m1-val').textContent = view.m1[1];
+      document.getElementById('biz-m2-label').textContent = view.m2[0];
+      document.getElementById('biz-m2-val').textContent = view.m2[1];
+      document.getElementById('biz-m3-label').textContent = view.m3[0];
+      document.getElementById('biz-m3-val').textContent = view.m3[1];
+
+      bizRowsEl.innerHTML = view.rows
+        .map(
+          ([title, sub, badge, badgeCls, amt, pos]) => `
+          <div class="ui-row">
+            <div>
+              <span class="ui-row-main">${title}</span>
+              <span class="ui-row-sub">${sub}</span>
+            </div>
+            <span class="ui-badge ${badgeCls}">${badge}</span>
+            <span class="entry-amt ${pos ? 'is-pos' : ''}">${amt}</span>
+          </div>`
+        )
+        .join('');
     });
   });
-  updateEst();
 
-  /* ---------- Smooth Interruptible FAQ Accordion ---------- */
-  $$('#faq-list details').forEach((det) => {
-    const summary = $('summary', det);
-    const body = $('.faq-body', det);
+  // Feature 2: School Finance stream filter
+  const schoolViews = {
+    all: {
+      billed: 'UGX 272.9M',
+      collected: 'UGX 214.6M',
+      outstanding: 'UGX 58.3M',
+      rows: [
+        ['ST-0412 · S.4 East (Boarding)', 'Receipt #R-1904 · Tuition & boarding', 'Cleared', 'is-mint', 'UGX 0 bal'],
+        ['ST-0289 · P.7 North (Day)', '25% bursary applied · MTN MoMo part-pay', 'Reminder queued', 'is-amber', 'UGX 240,000'],
+        ['ST-0519 · S.2 West (Boarding)', 'Bank deposit Slip #88412', 'Paid 850,000', 'is-mint', 'UGX 150,000'],
+      ],
+    },
+    day: {
+      billed: 'UGX 104.4M',
+      collected: 'UGX 84.1M',
+      outstanding: 'UGX 20.3M',
+      rows: [
+        ['ST-0289 · P.7 North (Day)', '25% bursary applied · MTN MoMo part-pay', 'Reminder queued', 'is-amber', 'UGX 240,000'],
+        ['ST-0144 · P.5 East (Day)', 'Receipt #R-1911 · Airtel Money', 'Cleared', 'is-mint', 'UGX 0 bal'],
+        ['ST-0308 · S.1 South (Day)', 'Sibling discount 10% · Cash counter', 'Part-paid', '', 'UGX 180,000'],
+      ],
+    },
+    boarding: {
+      billed: 'UGX 168.5M',
+      collected: 'UGX 130.5M',
+      outstanding: 'UGX 38.0M',
+      rows: [
+        ['ST-0412 · S.4 East (Boarding)', 'Receipt #R-1904 · Tuition & boarding', 'Cleared', 'is-mint', 'UGX 0 bal'],
+        ['ST-0519 · S.2 West (Boarding)', 'Bank deposit Slip #88412', 'Paid 850,000', 'is-mint', 'UGX 150,000'],
+        ['ST-0602 · S.6 Sciences (Boarding)', 'Special lab & boarding structure', 'Reminder queued', 'is-amber', 'UGX 390,000'],
+      ],
+    },
+  };
+
+  const schoolTabs = document.querySelectorAll('[data-school-tab]');
+  const schoolRowsEl = document.getElementById('school-rows');
+  schoolTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const view = schoolViews[tab.dataset.schoolTab];
+      if (!view || !schoolRowsEl) return;
+      schoolTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+
+      document.getElementById('sch-billed').textContent = view.billed;
+      document.getElementById('sch-collected').textContent = view.collected;
+      document.getElementById('sch-outstanding').textContent = view.outstanding;
+
+      schoolRowsEl.innerHTML = view.rows
+        .map(
+          ([title, sub, badge, badgeCls, amt]) => `
+          <div class="ui-row">
+            <div>
+              <span class="ui-row-main">${title}</span>
+              <span class="ui-row-sub">${sub}</span>
+            </div>
+            <span class="ui-badge ${badgeCls}">${badge}</span>
+            <span class="entry-amt">${amt}</span>
+          </div>`
+        )
+        .join('');
+    });
+  });
+
+  // Feature 3: Maker-Checker Approve toggle
+  const approveBtn = document.getElementById('demo-approve-btn');
+  const poBadge = document.getElementById('po-demo-badge');
+  const poSub = document.getElementById('po-demo-sub');
+  const poAudit = document.getElementById('po-audit-note');
+
+  if (approveBtn && poBadge && poSub) {
+    approveBtn.addEventListener('click', () => {
+      const approved = approveBtn.dataset.approved !== 'true';
+      approveBtn.dataset.approved = String(approved);
+      if (approved) {
+        approveBtn.textContent = 'Approved · Undo';
+        poBadge.textContent = 'Approved & posted';
+        poBadge.className = 'ui-badge is-mint';
+        poSub.textContent = 'Checker sign-off recorded · Posted to Payables';
+        if (poAudit) poAudit.textContent = 'Audit log updated: Checker approved PO-0418 just now';
+      } else {
+        approveBtn.textContent = '✓ Approve PO-0418';
+        poBadge.textContent = 'Awaiting checker';
+        poBadge.className = 'ui-badge is-amber';
+        poSub.textContent = 'PO = GRN #219 = Supplier Bill · Variance UGX 0';
+        if (poAudit) poAudit.textContent = 'Every approval records user, timestamp & audit trail';
+      }
+    });
+  }
+
+  /* =========================================================
+     6. Pricing Controls (#pricing)
+     ========================================================= */
+  const dmSwitch = document.getElementById('dm-switch');
+  const setupTotalDisplay = document.getElementById('setup-total-display');
+  const setupSummaryAmt = document.getElementById('setup-summary-amt');
+  const setupCaption = document.getElementById('setup-total-caption');
+  const dmFeeLine = document.getElementById('dm-fee-line');
+  const dmLineStatus = document.getElementById('dm-line-status');
+  const bookSetupBtn = document.getElementById('book-setup-btn');
+  let currentSetupTotal = 500000;
+
+  if (dmSwitch) {
+    dmSwitch.addEventListener('click', () => {
+      const includeDm = dmSwitch.getAttribute('aria-checked') !== 'true';
+      dmSwitch.setAttribute('aria-checked', String(includeDm));
+      const nextTotal = includeDm ? 700000 : 500000;
+
+      animateValue(setupTotalDisplay, currentSetupTotal, nextTotal, 220);
+      animateValue(setupSummaryAmt, currentSetupTotal, nextTotal, 220);
+      currentSetupTotal = nextTotal;
+
+      if (setupCaption) {
+        setupCaption.textContent = includeDm
+          ? 'One-time total including optional historical data management (UGX 300,000)'
+          : 'One-time total without optional data management (UGX 700,000 with data management)';
+      }
+      if (dmFeeLine) dmFeeLine.dataset.optionalOff = String(!includeDm);
+      if (dmLineStatus) {
+        dmLineStatus.textContent = includeDm
+          ? 'Included in total · Historical records & opening balances'
+          : 'Optional add-on · Toggle above to include';
+      }
+    });
+  }
+
+  if (bookSetupBtn) {
+    bookSetupBtn.addEventListener('click', () => {
+      const msgEl = document.getElementById('f-message');
+      const includeDm = dmSwitch?.getAttribute('aria-checked') === 'true';
+      if (msgEl && !msgEl.value.trim()) {
+        msgEl.value = includeDm
+          ? 'Interested in business implementation with optional data management (UGX 700,000 one-time).'
+          : 'Interested in standard business implementation without data management (UGX 500,000 one-time).';
+      }
+    });
+  }
+
+  // School Monthly Subscription Estimator
+  const studentSlider = document.getElementById('student-slider');
+  const studentCountOut = document.getElementById('student-count-out');
+  const schoolMonthlyOut = document.getElementById('school-monthly-out');
+  const presetBtns = document.querySelectorAll('.preset-btn');
+  const bookMonthlyBtn = document.getElementById('book-monthly-btn');
+  let schoolEstimatorTouched = false;
+
+  function updateSchoolSlider(students, markTouched = false) {
+    if (!studentSlider) return;
+    const min = Number(studentSlider.min) || 50;
+    const max = Number(studentSlider.max) || 2000;
+    const val = Math.max(min, Math.min(max, Number(students) || 450));
+    studentSlider.value = String(val);
+    const pct = ((val - min) / (max - min)) * 100;
+    studentSlider.style.setProperty('--fill', `${pct.toFixed(1)}%`);
+
+    if (studentCountOut) studentCountOut.textContent = val.toLocaleString('en-US');
+    if (schoolMonthlyOut) schoolMonthlyOut.textContent = `${formatUGX(val * 1000)} / mo`;
+
+    presetBtns.forEach((btn) => {
+      btn.setAttribute('aria-pressed', String(Number(btn.dataset.students) === val));
+    });
+    if (markTouched) schoolEstimatorTouched = true;
+  }
+
+  if (studentSlider) {
+    updateSchoolSlider(Number(studentSlider.value), false);
+    studentSlider.addEventListener('input', () => {
+      updateSchoolSlider(Number(studentSlider.value), true);
+    });
+    presetBtns.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        updateSchoolSlider(Number(btn.dataset.students), true);
+      });
+    });
+  }
+
+  function schoolSizeBucket(students) {
+    if (students <= 300) return 'Up to 300 students';
+    if (students <= 800) return '301–800 students';
+    if (students <= 1500) return '801–1,500 students';
+    return '1,501+ students';
+  }
+
+  if (bookMonthlyBtn) {
+    bookMonthlyBtn.addEventListener('click', () => {
+      if (!schoolEstimatorTouched || !studentSlider) return;
+      const students = Number(studentSlider.value) || 450;
+      const orgTypeEl = document.getElementById('f-org-type');
+      const orgSizeEl = document.getElementById('f-org-size');
+      const msgEl = document.getElementById('f-message');
+      if (orgTypeEl) orgTypeEl.value = 'School';
+      if (orgSizeEl) orgSizeEl.value = schoolSizeBucket(students);
+      if (msgEl && !msgEl.value.trim()) {
+        msgEl.value = `School with approximately ${students.toLocaleString('en-US')} students (${formatUGX(students * 1000)}/month subscription estimate). Please share a custom implementation quote.`;
+      }
+    });
+  }
+
+  /* =========================================================
+     7. Audience / Quote Pre-fill Links
+     ========================================================= */
+  document.querySelectorAll('.js-prefill-org').forEach((link) => {
+    link.addEventListener('click', () => {
+      const orgType = link.dataset.orgType;
+      const orgSize = link.dataset.orgSize;
+      const isQuote = link.dataset.quote === 'true';
+
+      const typeEl = document.getElementById('f-org-type');
+      const sizeEl = document.getElementById('f-org-size');
+      const msgEl = document.getElementById('f-message');
+
+      if (typeEl && orgType) typeEl.value = orgType;
+      if (sizeEl && orgSize) sizeEl.value = orgSize;
+      if (isQuote && msgEl && !msgEl.value.trim()) {
+        msgEl.value = 'Please prepare a custom implementation and monthly subscription quote for our organization.';
+      }
+
+      if (link.getAttribute('href') === '#book') {
+        setTimeout(() => {
+          document.getElementById('f-name')?.focus({ preventScroll: true });
+        }, 350);
+      }
+    });
+  });
+
+  // Auto-suggest matching size group when organizationType changes
+  const orgTypeSelect = document.getElementById('f-org-type');
+  const orgSizeSelect = document.getElementById('f-org-size');
+  if (orgTypeSelect && orgSizeSelect) {
+    orgTypeSelect.addEventListener('change', () => {
+      const t = orgTypeSelect.value;
+      const cur = orgSizeSelect.value;
+      if (t === 'School' && cur && !cur.includes('students')) {
+        orgSizeSelect.value = '301–800 students';
+      } else if (t && t !== 'School' && cur.includes('students')) {
+        orgSizeSelect.value = t === 'Small business' ? '1–10 people' : t === 'Medium-sized business' ? '11–50 people' : '201+ people';
+      }
+    });
+  }
+
+  /* =========================================================
+     8. Interruptible Smooth FAQ Accordion
+     ========================================================= */
+  document.querySelectorAll('details.faq-item').forEach((details) => {
+    const summary = details.querySelector('summary');
+    const body = details.querySelector('.faq-body');
     if (!summary || !body) return;
-    let animEnd = null;
+
+    let anim = null;
 
     summary.addEventListener('click', (e) => {
-      if (reduceMotion()) return;
+      if (prefersReducedMotion() || !body.animate) return;
       e.preventDefault();
-      if (animEnd) {
-        body.removeEventListener('transitionend', animEnd);
-        animEnd = null;
-      }
+      if (anim) anim.cancel();
 
-      if (det.open && !det.dataset.closing) {
-        det.dataset.closing = '1';
-        const currentH = body.getBoundingClientRect().height;
-        body.style.height = currentH + 'px';
-        body.style.opacity = getComputedStyle(body).opacity;
-        requestAnimationFrame(() => {
-          body.style.height = '0px';
-          body.style.opacity = '0';
-        });
-        animEnd = (ev) => {
-          if (ev.propertyName !== 'height') return;
-          det.open = false;
-          delete det.dataset.closing;
-          body.style.height = '';
-          body.style.opacity = '';
-          body.removeEventListener('transitionend', animEnd);
-          animEnd = null;
+      const isOpening = !details.open;
+      if (isOpening) {
+        const startHeight = 0;
+        details.open = true;
+        const endHeight = body.offsetHeight;
+        anim = body.animate(
+          [
+            { height: `${startHeight}px`, opacity: 0 },
+            { height: `${endHeight}px`, opacity: 1 },
+          ],
+          { duration: 220, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
+        );
+        anim.onfinish = () => {
+          anim = null;
         };
-        body.addEventListener('transitionend', animEnd);
       } else {
-        delete det.dataset.closing;
-        const startH = det.open ? body.getBoundingClientRect().height : 0;
-        det.open = true;
-        body.style.height = 'auto';
-        const targetH = body.scrollHeight;
-        body.style.height = startH + 'px';
-        body.style.opacity = startH > 0 ? getComputedStyle(body).opacity : '0';
-        requestAnimationFrame(() => {
-          body.style.height = targetH + 'px';
-          body.style.opacity = '1';
-        });
-        animEnd = (ev) => {
-          if (ev.propertyName !== 'height') return;
-          body.style.height = '';
-          body.style.opacity = '';
-          body.removeEventListener('transitionend', animEnd);
-          animEnd = null;
+        const startHeight = body.offsetHeight;
+        anim = body.animate(
+          [
+            { height: `${startHeight}px`, opacity: 1 },
+            { height: '0px', opacity: 0 },
+          ],
+          { duration: 180, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
+        );
+        anim.onfinish = () => {
+          details.open = false;
+          anim = null;
         };
-        body.addEventListener('transitionend', animEnd);
       }
     });
   });
 
-  /* ---------- Demo Booking Form ---------- */
-  const form = $('#demo-form');
-  const typeSel = $('#f-type');
-  const sizeSel = $('#f-size');
-  const dateIn = $('#f-date');
-  const msgIn = $('#f-msg');
-  const msgCount = $('#msg-count');
-  const alertBox = $('#form-alert');
-  const submitBtn = $('#demo-submit');
-  const success = $('#form-success');
+  /* =========================================================
+     9. Demo Booking Form Validation & Submission (#demo-form)
+     ========================================================= */
+  const form = document.getElementById('demo-form');
+  const startedInput = document.getElementById('f-started');
+  const dateInput = document.getElementById('f-date');
+  const errorBanner = document.getElementById('form-error-banner');
+  const submitBtn = document.getElementById('submit-demo-btn');
+  const submitLabel = document.getElementById('submit-btn-label');
+  const successPanel = document.getElementById('booking-success');
+  const bookAnotherBtn = document.getElementById('book-another-btn');
 
-  const SIZES = {
-    business: ['1–10 people', '11–50 people', '51–200 people', '201+ people'],
-    school: ['Up to 300 students', '301–800 students', '801–1,500 students', '1,501+ students'],
-  };
-  const fillSizes = () => {
-    const isSchool = typeSel.value === 'School';
-    const opts = typeSel.value ? SIZES[isSchool ? 'school' : 'business'] : [];
-    const prev = sizeSel.value;
-    sizeSel.innerHTML = `<option value="" selected disabled>${typeSel.value ? (isSchool ? 'Student enrollment' : 'Staff size') : 'Select type first'}</option>` +
-      opts.map((o) => `<option${o === prev ? ' selected' : ''}>${o}</option>`).join('');
-  };
-  typeSel.addEventListener('change', fillSizes);
+  function eatDateISO(offsetDays = 0) {
+    const d = new Date(Date.now() + 3 * 3600 * 1000 + offsetDays * 86400 * 1000);
+    return d.toISOString().slice(0, 10);
+  }
 
-  $$('[data-prefill-type]').forEach((a) =>
-    a.addEventListener('click', () => {
-      typeSel.value = a.dataset.prefillType;
-      fillSizes();
-      clearError('organizationType');
-    })
-  );
-
-  const localISO = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
-  const today = new Date();
-  dateIn.min = localISO(today);
-  dateIn.max = localISO(new Date(today.getTime() + 365 * 86400000));
-
-  const stamp = () => ($('#f-started').value = String(Date.now()));
-  stamp();
-
-  const fieldOf = (name) => form.elements[name]?.closest('.field');
-  const setError = (name, msg) => {
-    const f = fieldOf(name); const e = $('#e-' + name); const input = form.elements[name];
-    if (!f || !e) return;
-    f.classList.add('invalid');
-    e.textContent = msg;
-    input.setAttribute('aria-invalid', 'true');
-    input.setAttribute('aria-describedby', 'e-' + name);
-  };
-  const clearError = (name) => {
-    const f = fieldOf(name); const e = $('#e-' + name); const input = form.elements[name];
-    if (!f || !e) return;
-    f.classList.remove('invalid');
-    e.textContent = '';
-    input.removeAttribute('aria-invalid');
-  };
+  if (startedInput) startedInput.value = String(Date.now());
+  if (dateInput) {
+    const minDate = eatDateISO(0);
+    const maxDate = eatDateISO(365);
+    dateInput.min = minDate;
+    dateInput.max = maxDate;
+    if (!dateInput.value) dateInput.value = eatDateISO(1);
+  }
 
   const validators = {
-    name: (v) => (v.trim().length < 2 ? 'Please enter your full name.' : ''),
-    organization: (v) => (v.trim().length < 2 ? 'Please enter your organization’s name.' : ''),
-    organizationType: (v) => (!v ? 'Please choose an organization type.' : ''),
-    organizationSize: (v) => (!v ? 'Please choose your organization size.' : ''),
-    email: (v) => (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) ? 'Please enter a valid email address.' : ''),
+    name: (v) => (v.trim().length >= 2 && v.trim().length <= 100 ? '' : 'Please enter your full name.'),
+    organization: (v) =>
+      v.trim().length >= 2 && v.trim().length <= 150 ? '' : 'Please enter your organization’s name.',
+    organizationType: (v) =>
+      ['Small business', 'Medium-sized business', 'Large organization', 'School'].includes(v)
+        ? ''
+        : 'Please choose an organization type.',
+    organizationSize: (v) =>
+      [
+        '1–10 people',
+        '11–50 people',
+        '51–200 people',
+        '201+ people',
+        'Up to 300 students',
+        '301–800 students',
+        '801–1,500 students',
+        '1,501+ students',
+      ].includes(v)
+        ? ''
+        : 'Please choose your organization size.',
+    email: (v) =>
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) && v.trim().length <= 254
+        ? ''
+        : 'Please enter a valid email address.',
     phone: (v) => {
-      const d = v.replace(/\D/g, '');
-      return !/^[+\d\s().-]+$/.test(v.trim()) || d.length < 9 || d.length > 15 ? 'Please enter a valid phone number, e.g. +256 7XX XXX XXX.' : '';
+      const clean = v.trim();
+      const digits = clean.replace(/\D/g, '');
+      return /^[+\d\s().-]+$/.test(clean) && digits.length >= 9 && digits.length <= 15
+        ? ''
+        : 'Please enter a valid phone number, e.g. +256 7XX XXX XXX.';
     },
     preferredDate: (v) => {
-      if (!v) return 'Please choose a preferred demo date.';
-      if (v < dateIn.min) return 'Please choose today or a future date.';
-      if (v > dateIn.max) return 'Please choose a date within the next 12 months.';
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'Please choose a preferred demo date.';
+      if (v < eatDateISO(0)) return 'Please choose today or a future date.';
+      if (v > eatDateISO(365)) return 'Please choose a date within the next 12 months.';
       return '';
     },
-    message: (v) => (v.length > 2000 ? 'Please keep your message under 2,000 characters.' : ''),
+    message: (v) => {
+      if (v.length > 2000) return 'Please keep your message under 2,000 characters.';
+      if ((v.match(/https?:\/\//gi) || []).length > 2) return 'Please remove links from your message.';
+      return '';
+    },
   };
 
-  Object.keys(validators).forEach((name) => {
-    const el = form.elements[name];
-    el.addEventListener('blur', () => {
-      const m = validators[name](el.value);
-      m ? setError(name, m) : clearError(name);
-    });
-    el.addEventListener('input', () => {
-      if (fieldOf(name)?.classList.contains('invalid') && !validators[name](el.value)) clearError(name);
-    });
-  });
-
-  msgIn.addEventListener('input', () => {
-    const len = msgIn.value.length;
-    msgCount.textContent = len > 200 ? `${fmt(len)} / 2,000` : 'Optional';
-  });
-
-  const showAlert = (msg) => { alertBox.textContent = msg; alertBox.hidden = false; };
-  const setLoading = (on) => {
-    submitBtn.classList.toggle('loading', on);
-    submitBtn.disabled = on;
-    $('.btn-label', submitBtn).textContent = on ? 'Booking demo…' : 'Book a demo';
-  };
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    alertBox.hidden = true;
-    let firstBad = null;
-    for (const [name, fn] of Object.entries(validators)) {
-      const msg = fn(form.elements[name].value);
-      if (msg) { setError(name, msg); firstBad ||= form.elements[name]; }
-      else clearError(name);
+  function setFieldError(name, msg) {
+    const errEl = form?.querySelector(`[data-err-for="${name}"]`);
+    const control = form?.elements?.namedItem(name);
+    const wrapper = control?.closest?.('.field');
+    if (errEl) errEl.textContent = msg || '';
+    if (wrapper) wrapper.dataset.invalid = msg ? 'true' : 'false';
+    if (control && control.setAttribute) {
+      if (msg) control.setAttribute('aria-invalid', 'true');
+      else control.removeAttribute('aria-invalid');
     }
-    if (firstBad) { firstBad.focus(); return; }
+  }
 
-    const payload = Object.fromEntries(new FormData(form).entries());
-    setLoading(true);
-    try {
-      const ctrl = new AbortController();
-      const timer = setTimeout(() => ctrl.abort(), 20000);
-      const res = await fetch('/api/book-demo', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-        signal: ctrl.signal,
+  if (form) {
+    Object.keys(validators).forEach((fieldName) => {
+      const ctrl = form.elements.namedItem(fieldName);
+      if (!ctrl || !ctrl.addEventListener) return;
+      ctrl.addEventListener('blur', () => {
+        setFieldError(fieldName, validators[fieldName](ctrl.value || ''));
       });
-      clearTimeout(timer);
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        if (data.errors) {
-          Object.entries(data.errors).forEach(([k, v]) => setError(k, v));
-          const first = Object.keys(data.errors)[0];
-          form.elements[first]?.focus();
+      ctrl.addEventListener('input', () => {
+        const wrapper = ctrl.closest?.('.field');
+        if (wrapper?.dataset.invalid === 'true') {
+          setFieldError(fieldName, validators[fieldName](ctrl.value || ''));
         }
-        showAlert(data.message || 'We couldn’t send your booking. Please try again.');
+      });
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (errorBanner) errorBanner.hidden = true;
+
+      const payload = {
+        name: form.elements.name.value.trim(),
+        organization: form.elements.organization.value.trim(),
+        organizationType: form.elements.organizationType.value,
+        organizationSize: form.elements.organizationSize.value,
+        email: form.elements.email.value.trim(),
+        phone: form.elements.phone.value.trim(),
+        preferredDate: form.elements.preferredDate.value,
+        message: form.elements.message.value.trim(),
+        website: form.elements.website.value,
+        startedAt: Number(form.elements.startedAt.value || Date.now()),
+      };
+
+      let firstInvalid = null;
+      Object.keys(validators).forEach((key) => {
+        const msg = validators[key](payload[key] || '');
+        setFieldError(key, msg);
+        if (msg && !firstInvalid) firstInvalid = form.elements.namedItem(key);
+      });
+
+      if (firstInvalid) {
+        firstInvalid.focus();
         return;
       }
-      $('#s-date').textContent = new Date(payload.preferredDate + 'T00:00:00').toLocaleDateString('en-UG', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-      $('#s-email').textContent = payload.email;
-      $('#s-ref').textContent = data.reference || '';
-      form.hidden = true;
-      success.classList.add('entering');
-      success.classList.remove('celebrate');
-      success.hidden = false;
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          success.classList.remove('entering');
-          success.classList.add('celebrate');
-        });
-      });
-      success.focus();
-      success.scrollIntoView({ behavior: reduceMotion() ? 'auto' : 'smooth', block: 'center' });
-    } catch (err) {
-      showAlert(err.name === 'AbortError'
-        ? 'The request timed out. Please check your connection and try again.'
-        : 'We couldn’t reach the server. Please check your connection and try again.');
-    } finally {
-      setLoading(false);
-    }
-  });
 
-  $('#book-another').addEventListener('click', () => {
-    form.reset();
-    $$('.field', form).forEach((f) => f.classList.remove('invalid'));
-    msgCount.textContent = 'Optional';
-    fillSizes();
-    stamp();
-    success.hidden = true;
-    success.classList.remove('celebrate', 'entering');
-    form.hidden = false;
-    form.elements.name.focus();
-  });
+      if (submitBtn) submitBtn.disabled = true;
+      if (submitLabel) {
+        submitLabel.innerHTML = '<span class="btn-spinner" aria-hidden="true"></span> Sending request…';
+      }
+
+      try {
+        const res = await fetch('/api/book-demo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok || !data.ok) {
+          if (data.errors && typeof data.errors === 'object') {
+            let firstServerErr = null;
+            Object.entries(data.errors).forEach(([k, v]) => {
+              setFieldError(k, String(v));
+              if (!firstServerErr) firstServerErr = form.elements.namedItem(k);
+            });
+            firstServerErr?.focus?.();
+          }
+          if (errorBanner) {
+            errorBanner.textContent =
+              data.message || 'We could not submit your request right now. Please check your details and try again.';
+            errorBanner.hidden = false;
+          }
+          return;
+        }
+
+        const confirmName = document.getElementById('confirm-name');
+        const confirmOrg = document.getElementById('confirm-org');
+        const confirmRef = document.getElementById('confirm-ref');
+        if (confirmName) confirmName.textContent = payload.name;
+        if (confirmOrg) confirmOrg.textContent = payload.organization;
+        if (confirmRef) confirmRef.textContent = data.reference || 'BOAT-RECEIVED';
+
+        form.hidden = true;
+        if (successPanel) successPanel.hidden = false;
+      } catch {
+        if (errorBanner) {
+          errorBanner.textContent = 'Network error — please check your internet connection and try again.';
+          errorBanner.hidden = false;
+        }
+      } finally {
+        if (submitBtn) submitBtn.disabled = false;
+        if (submitLabel) submitLabel.textContent = 'Book my demo';
+      }
+    });
+  }
+
+  if (bookAnotherBtn && form && successPanel) {
+    bookAnotherBtn.addEventListener('click', () => {
+      form.reset();
+      if (dateInput) dateInput.value = eatDateISO(1);
+      if (startedInput) startedInput.value = String(Date.now());
+      Object.keys(validators).forEach((k) => setFieldError(k, ''));
+      if (errorBanner) errorBanner.hidden = true;
+      successPanel.hidden = true;
+      form.hidden = false;
+      document.getElementById('f-name')?.focus();
+    });
+  }
 })();
