@@ -2,11 +2,14 @@
   'use strict';
 
   const prefersReducedMotion = () =>
-    window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+  const canHoverFine = () =>
+    Boolean(window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches);
 
   const formatUGX = (n) => 'UGX ' + Math.round(n).toLocaleString('en-US');
 
-  function animateValue(el, from, to, duration = 220, formatter = formatUGX) {
+  function animateValue(el, from, to, duration = 240, formatter = formatUGX) {
     if (!el) return;
     if (prefersReducedMotion() || from === to) {
       el.textContent = formatter(to);
@@ -135,9 +138,11 @@
   }
 
   /* =========================================================
-     3. ScrollReveal & Active Nav Highlight
+     3. Choreographed Scroll Reveals + Sliding Nav Pill + Scroll Engine
      ========================================================= */
-  const revealEls = document.querySelectorAll('.reveal');
+  const revealSelectors = '.reveal, .stagger-group, .reveal-feature, .reveal-photo';
+  const revealEls = document.querySelectorAll(revealSelectors);
+
   if (prefersReducedMotion() || !('IntersectionObserver' in window)) {
     revealEls.forEach((el) => el.classList.add('is-visible'));
   } else {
@@ -150,12 +155,37 @@
           }
         });
       },
-      { rootMargin: '0px 0px -6% 0px', threshold: 0.06 }
+      { rootMargin: '0px 0px -7% 0px', threshold: 0.06 }
     );
     revealEls.forEach((el) => io.observe(el));
   }
 
+  // Sliding Header Nav Pill Indicator
+  const primaryNav = document.getElementById('primary-nav');
+  const navPill = document.getElementById('nav-pill-indicator');
   const navLinks = Array.from(document.querySelectorAll('.primary-nav .nav-link'));
+  let activeNavLink = null;
+
+  function moveNavPillTo(link) {
+    if (!navPill || !primaryNav) return;
+    if (!link) {
+      navPill.style.opacity = '0';
+      return;
+    }
+    const x = link.offsetLeft;
+    const w = link.offsetWidth;
+    navPill.style.width = `${w}px`;
+    navPill.style.transform = `translate3d(${x}px, -50%, 0)`;
+    navPill.style.opacity = '1';
+  }
+
+  if (primaryNav && canHoverFine()) {
+    navLinks.forEach((link) => {
+      link.addEventListener('pointerenter', () => moveNavPillTo(link));
+    });
+    primaryNav.addEventListener('pointerleave', () => moveNavPillTo(activeNavLink));
+  }
+
   const navTargets = navLinks
     .map((link) => {
       const id = link.getAttribute('href')?.slice(1);
@@ -171,26 +201,167 @@
           if (entry.isIntersecting) {
             navLinks.forEach((l) => l.removeAttribute('aria-current'));
             const match = navTargets.find((t) => t.sec === entry.target);
-            if (match) match.link.setAttribute('aria-current', 'true');
+            if (match) {
+              match.link.setAttribute('aria-current', 'true');
+              activeNavLink = match.link;
+              moveNavPillTo(activeNavLink);
+            }
           }
         });
       },
-      { rootMargin: '-28% 0px -58% 0px', threshold: 0 }
+      { rootMargin: '-25% 0px -58% 0px', threshold: 0 }
     );
     navTargets.forEach((t) => navObserver.observe(t.sec));
   }
 
+  // Composite-Only Scroll Engine (Progress Bar, Header State, Hero Panel Depth, 5-Step Journey Track)
+  const siteHeader = document.getElementById('site-header');
+  const scrollProgress = document.getElementById('scroll-progress');
+  const heroPanel = document.getElementById('hero-panel');
+  const howSection = document.getElementById('how');
+  const stepsTrackFill = document.getElementById('steps-track-fill');
+  const stepCards = Array.from(document.querySelectorAll('#steps-grid .step-card'));
+  let scrollTicking = false;
+
+  function renderScrollFrame() {
+    scrollTicking = false;
+    const scrollY = window.scrollY || window.pageYOffset || 0;
+    const docHeight = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+    const ratio = Math.min(1, Math.max(0, scrollY / docHeight));
+
+    if (scrollProgress) {
+      scrollProgress.style.transform = `scaleX(${ratio.toFixed(4)})`;
+    }
+    if (siteHeader) {
+      siteHeader.dataset.scrolled = scrollY > 18 ? 'true' : 'false';
+      if (scrollY < 180 && activeNavLink) {
+        activeNavLink.removeAttribute('aria-current');
+        activeNavLink = null;
+        moveNavPillTo(null);
+      }
+    }
+
+    if (!prefersReducedMotion()) {
+      // Subtle grounded scroll settle on Hero Panel
+      if (heroPanel && scrollY < 900) {
+        const rect = heroPanel.getBoundingClientRect();
+        const vh = window.innerHeight || 800;
+        if (rect.bottom > 0 && rect.top < vh) {
+          const progress = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.95)));
+          const lift = (1 - progress) * 10;
+          heroPanel.style.transform = `translate3d(0, ${lift.toFixed(2)}px, 0)`;
+        }
+      }
+
+      // 5-Step Journey Scroll-Driven Connector Track
+      if (howSection && stepsTrackFill) {
+        const rect = howSection.getBoundingClientRect();
+        const vh = window.innerHeight || 800;
+        const start = vh * 0.82;
+        const end = vh * 0.28;
+        const p = Math.min(1, Math.max(0.15, (start - rect.top) / Math.max(1, start - end)));
+        stepsTrackFill.style.transform = `scaleX(${p.toFixed(3)})`;
+        const litCount = Math.round(p * stepCards.length);
+        stepCards.forEach((card, idx) => {
+          card.dataset.stepLit = String(idx < litCount);
+        });
+      }
+    }
+  }
+
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (!scrollTicking) {
+        scrollTicking = true;
+        requestAnimationFrame(renderScrollFrame);
+      }
+    },
+    { passive: true }
+  );
+  renderScrollFrame();
+
   /* =========================================================
-     4. Hero Micro-Interactions: Money Rails & Sparkline Scrub
+     4. Spring-Interpolated Magnetic CTAs & Spotlight Cards
      ========================================================= */
+  if (canHoverFine() && !prefersReducedMotion()) {
+    document.querySelectorAll('.js-magnetic').forEach((btn) => {
+      let targetX = 0;
+      let targetY = 0;
+      let curX = 0;
+      let curY = 0;
+      let vx = 0;
+      let vy = 0;
+      let rafId = 0;
+
+      const tickSpring = () => {
+        const stiffness = 0.22;
+        const damping = 0.72;
+        vx = (vx + (targetX - curX) * stiffness) * damping;
+        vy = (vy + (targetY - curY) * stiffness) * damping;
+        curX += vx;
+        curY += vy;
+
+        if (Math.abs(curX - targetX) < 0.05 && Math.abs(curY - targetY) < 0.05 && Math.abs(vx) < 0.05 && Math.abs(vy) < 0.05) {
+          curX = targetX;
+          curY = targetY;
+          btn.style.transform = curX === 0 && curY === 0 ? '' : `translate3d(${curX.toFixed(2)}px, ${curY.toFixed(2)}px, 0)`;
+          rafId = 0;
+          return;
+        }
+        btn.style.transform = `translate3d(${curX.toFixed(2)}px, ${curY.toFixed(2)}px, 0)`;
+        rafId = requestAnimationFrame(tickSpring);
+      };
+
+      btn.addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const dx = (e.clientX - (r.left + r.width / 2)) / (r.width / 2);
+        const dy = (e.clientY - (r.top + r.height / 2)) / (r.height / 2);
+        targetX = Math.max(-4, Math.min(4, dx * 3.5));
+        targetY = Math.max(-3, Math.min(3, dy * 2.5));
+        if (!rafId) rafId = requestAnimationFrame(tickSpring);
+      });
+
+      btn.addEventListener('pointerleave', () => {
+        targetX = 0;
+        targetY = 0;
+        if (!rafId) rafId = requestAnimationFrame(tickSpring);
+      });
+    });
+
+    document.querySelectorAll('.spotlight-card').forEach((card) => {
+      card.addEventListener('pointermove', (e) => {
+        const r = card.getBoundingClientRect();
+        card.style.setProperty('--spot-x', `${Math.round(e.clientX - r.left)}px`);
+        card.style.setProperty('--spot-y', `${Math.round(e.clientY - r.top)}px`);
+      });
+    });
+  }
+
+  /* =========================================================
+     5. Hero Dashboard Micro-Interactions
+     ========================================================= */
+  // One-shot KPI roll on initial load
+  if (!prefersReducedMotion()) {
+    document.querySelectorAll('[data-count-to]').forEach((el) => {
+      const target = parseFloat(el.dataset.countTo || '0');
+      const prefix = el.dataset.countPrefix || '';
+      const suffix = el.dataset.countSuffix || '';
+      const decimals = parseInt(el.dataset.countDecimals || '1', 10);
+      const start = target * 0.72;
+      animateValue(el, start, target, 680, (v) => `${prefix}${v.toFixed(decimals)}${suffix}`);
+    });
+  }
+
+  // Money Rails Filter
   const railData = {
-    all: { label: 'Cash, MoMo & bank accounts', kpi: 'UGX 46.8M', tag: '' },
-    Cash: { label: 'Physical cash drawers & petty cash', kpi: 'UGX 6.4M', tag: 'CASH' },
-    'MTN MoMo': { label: 'MTN MoMo merchant & fee collections', kpi: 'UGX 14.2M', tag: 'MTN' },
-    'Airtel Money': { label: 'Airtel Money collections', kpi: 'UGX 8.1M', tag: 'AIRTEL' },
-    Bank: { label: 'Reconciled UGX bank accounts', kpi: 'UGX 16.0M', tag: 'BANK' },
-    Cheque: { label: 'Cleared & pending cheques', kpi: 'UGX 2.1M', tag: 'CHEQUE' },
-    Excel: { label: 'Opening balances imported via Excel/CSV', kpi: 'Balanced', tag: 'IMPORT' },
+    all: { label: 'Cash, MoMo & bank accounts', kpi: 'UGX 46.8M', num: 46.8, suffix: 'M', tag: '' },
+    Cash: { label: 'Physical cash drawers & petty cash', kpi: 'UGX 6.4M', num: 6.4, suffix: 'M', tag: 'CASH' },
+    'MTN MoMo': { label: 'MTN MoMo merchant & fee collections', kpi: 'UGX 14.2M', num: 14.2, suffix: 'M', tag: 'MTN' },
+    'Airtel Money': { label: 'Airtel Money collections', kpi: 'UGX 8.1M', num: 8.1, suffix: 'M', tag: 'AIRTEL' },
+    Bank: { label: 'Reconciled UGX bank accounts', kpi: 'UGX 16.0M', num: 16.0, suffix: 'M', tag: 'BANK' },
+    Cheque: { label: 'Cleared & pending cheques', kpi: 'UGX 2.1M', num: 2.1, suffix: 'M', tag: 'CHEQUE' },
+    Excel: { label: 'Opening balances imported via Excel/CSV', kpi: 'Balanced', num: null, suffix: '', tag: 'IMPORT' },
   };
 
   const railButtons = document.querySelectorAll('.rail-pill');
@@ -198,6 +369,7 @@
   const cashSub = document.getElementById('cash-sub');
   const cashKpi = document.getElementById('cash-kpi');
   const cashTag = document.getElementById('cash-rail-tag');
+  let currentCashNum = 46.8;
 
   railButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -206,7 +378,15 @@
 
       const info = railData[rail] || railData.all;
       if (cashSub) cashSub.textContent = info.label;
-      if (cashKpi) cashKpi.textContent = info.kpi;
+      if (cashKpi) {
+        if (info.num !== null && currentCashNum !== null) {
+          animateValue(cashKpi, currentCashNum, info.num, 220, (v) => `UGX ${v.toFixed(1)}${info.suffix}`);
+          currentCashNum = info.num;
+        } else {
+          cashKpi.textContent = info.kpi;
+          currentCashNum = info.num;
+        }
+      }
       if (cashTag) {
         if (info.tag) {
           cashTag.textContent = info.tag;
@@ -232,9 +412,10 @@
     });
   });
 
-  // Interactive hover scrub on Cash & bank sparkline
+  // Sparkline Hover Scrub
   const sparkSvg = document.getElementById('cash-spark');
   const sparkDot = document.getElementById('spark-dot');
+  const sparkPulse = document.getElementById('spark-pulse');
   const sparkTooltip = document.getElementById('spark-tooltip');
   const sparkPoints = [
     { x: 2, y: 46, label: 'Wk 1 · UGX 34.2M' },
@@ -263,6 +444,10 @@
       });
       sparkDot.setAttribute('cx', String(nearest.x));
       sparkDot.setAttribute('cy', String(nearest.y));
+      if (sparkPulse) {
+        sparkPulse.setAttribute('cx', String(nearest.x));
+        sparkPulse.setAttribute('cy', String(nearest.y));
+      }
       sparkTooltip.textContent = nearest.label;
       sparkTooltip.dataset.visible = 'true';
     });
@@ -271,13 +456,99 @@
       const last = sparkPoints[sparkPoints.length - 1];
       sparkDot.setAttribute('cx', String(last.x));
       sparkDot.setAttribute('cy', String(last.y));
+      if (sparkPulse) {
+        sparkPulse.setAttribute('cx', String(last.x));
+        sparkPulse.setAttribute('cy', String(last.y));
+      }
       sparkTooltip.dataset.visible = 'false';
     });
   }
 
+  // Term 3 Fee Bars Instant-Neighbor Tooltip Scrub
+  const heroBars = document.getElementById('hero-bars');
+  const barsTooltip = document.getElementById('bars-tooltip');
+  let barsTooltipWarm = false;
+  let barsWarmReset = null;
+
+  if (heroBars && barsTooltip) {
+    heroBars.querySelectorAll('.bar-col').forEach((bar) => {
+      const showBarTip = () => {
+        clearTimeout(barsWarmReset);
+        barsTooltip.dataset.instant = String(barsTooltipWarm);
+        barsTooltip.textContent = bar.dataset.barTip || '';
+        barsTooltip.dataset.visible = 'true';
+        barsTooltipWarm = true;
+      };
+      bar.addEventListener('pointerenter', showBarTip);
+      bar.addEventListener('click', showBarTip);
+    });
+    heroBars.addEventListener('pointerleave', () => {
+      barsTooltip.dataset.visible = 'false';
+      barsWarmReset = setTimeout(() => {
+        barsTooltipWarm = false;
+        barsTooltip.dataset.instant = 'false';
+      }, 300);
+    });
+  }
+
+  // Interactive Waiting for Approval Sign-Offs in Hero Panel
+  const apprRows = document.querySelectorAll('#hero-appr-list .appr-interactive');
+  const apprCountEl = document.getElementById('hero-appr-count');
+
+  function updateApprSummary() {
+    if (!apprCountEl || !apprRows.length) return;
+    let pending = 0;
+    apprRows.forEach((r) => {
+      if (r.dataset.signed !== 'true') pending += 1;
+    });
+    apprCountEl.textContent = pending === 0 ? 'All 4 signed off ✓' : `${pending} waiting · Click to sign`;
+  }
+
+  apprRows.forEach((row) => {
+    row.addEventListener('click', () => {
+      const next = row.dataset.signed !== 'true';
+      row.dataset.signed = String(next);
+      updateApprSummary();
+    });
+  });
+
   /* =========================================================
-     5. Product Section Interactive Previews (#product)
+     6. Segmented Glider Pills & Micro-Blur Tab Crossfades (#product)
      ========================================================= */
+  function syncSegGroupGlider(group) {
+    if (!group) return;
+    const glider = group.querySelector('.seg-glider');
+    const active = group.querySelector('.seg-btn[aria-selected="true"]');
+    if (!glider || !active) return;
+    glider.style.width = `${active.offsetWidth}px`;
+    glider.style.transform = `translate3d(${active.offsetLeft}px, 0, 0)`;
+    group.dataset.ready = 'true';
+  }
+
+  const segGroups = Array.from(document.querySelectorAll('.seg-group'));
+  segGroups.forEach((g) => syncSegGroupGlider(g));
+  if ('ResizeObserver' in window) {
+    const ro = new ResizeObserver(() => segGroups.forEach((g) => syncSegGroupGlider(g)));
+    segGroups.forEach((g) => ro.observe(g));
+  } else {
+    window.addEventListener('resize', () => segGroups.forEach((g) => syncSegGroupGlider(g)));
+  }
+
+  function swapWithMicroBlur(swapContainer, applyContent) {
+    if (!swapContainer || prefersReducedMotion()) {
+      applyContent();
+      return;
+    }
+    swapContainer.dataset.swapping = 'true';
+    setTimeout(() => {
+      applyContent();
+      requestAnimationFrame(() => {
+        swapContainer.dataset.swapping = 'false';
+      });
+    }, 105);
+  }
+
+  // Feature 1: General Business Tabs
   const bizViews = {
     sales: {
       m1: ['Today’s receipts', 'UGX 3,480,000'],
@@ -313,37 +584,44 @@
 
   const bizTabs = document.querySelectorAll('[data-biz-tab]');
   const bizRowsEl = document.getElementById('biz-rows');
+  const bizSwapBody = document.getElementById('biz-swap-body');
+
   bizTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
+      if (tab.getAttribute('aria-selected') === 'true') return;
       const key = tab.dataset.bizTab;
       const view = bizViews[key];
       if (!view || !bizRowsEl) return;
+
       bizTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      syncSegGroupGlider(tab.closest('.seg-group'));
 
-      document.getElementById('biz-m1-label').textContent = view.m1[0];
-      document.getElementById('biz-m1-val').textContent = view.m1[1];
-      document.getElementById('biz-m2-label').textContent = view.m2[0];
-      document.getElementById('biz-m2-val').textContent = view.m2[1];
-      document.getElementById('biz-m3-label').textContent = view.m3[0];
-      document.getElementById('biz-m3-val').textContent = view.m3[1];
+      swapWithMicroBlur(bizSwapBody, () => {
+        document.getElementById('biz-m1-label').textContent = view.m1[0];
+        document.getElementById('biz-m1-val').textContent = view.m1[1];
+        document.getElementById('biz-m2-label').textContent = view.m2[0];
+        document.getElementById('biz-m2-val').textContent = view.m2[1];
+        document.getElementById('biz-m3-label').textContent = view.m3[0];
+        document.getElementById('biz-m3-val').textContent = view.m3[1];
 
-      bizRowsEl.innerHTML = view.rows
-        .map(
-          ([title, sub, badge, badgeCls, amt, pos]) => `
-          <div class="ui-row">
-            <div>
-              <span class="ui-row-main">${title}</span>
-              <span class="ui-row-sub">${sub}</span>
-            </div>
-            <span class="ui-badge ${badgeCls}">${badge}</span>
-            <span class="entry-amt ${pos ? 'is-pos' : ''}">${amt}</span>
-          </div>`
-        )
-        .join('');
+        bizRowsEl.innerHTML = view.rows
+          .map(
+            ([title, sub, badge, badgeCls, amt, pos]) => `
+            <div class="ui-row">
+              <div>
+                <span class="ui-row-main">${title}</span>
+                <span class="ui-row-sub">${sub}</span>
+              </div>
+              <span class="ui-badge ${badgeCls}">${badge}</span>
+              <span class="entry-amt ${pos ? 'is-pos' : ''}">${amt}</span>
+            </div>`
+          )
+          .join('');
+      });
     });
   });
 
-  // Feature 2: School Finance stream filter
+  // Feature 2: School Finance Stream Filter
   const schoolViews = {
     all: {
       billed: 'UGX 272.9M',
@@ -379,34 +657,42 @@
 
   const schoolTabs = document.querySelectorAll('[data-school-tab]');
   const schoolRowsEl = document.getElementById('school-rows');
+  const schoolSwapBody = document.getElementById('school-swap-body');
+
   schoolTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
+      if (tab.getAttribute('aria-selected') === 'true') return;
       const view = schoolViews[tab.dataset.schoolTab];
       if (!view || !schoolRowsEl) return;
+
       schoolTabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      syncSegGroupGlider(tab.closest('.seg-group'));
 
-      document.getElementById('sch-billed').textContent = view.billed;
-      document.getElementById('sch-collected').textContent = view.collected;
-      document.getElementById('sch-outstanding').textContent = view.outstanding;
+      swapWithMicroBlur(schoolSwapBody, () => {
+        document.getElementById('sch-billed').textContent = view.billed;
+        document.getElementById('sch-collected').textContent = view.collected;
+        document.getElementById('sch-outstanding').textContent = view.outstanding;
 
-      schoolRowsEl.innerHTML = view.rows
-        .map(
-          ([title, sub, badge, badgeCls, amt]) => `
-          <div class="ui-row">
-            <div>
-              <span class="ui-row-main">${title}</span>
-              <span class="ui-row-sub">${sub}</span>
-            </div>
-            <span class="ui-badge ${badgeCls}">${badge}</span>
-            <span class="entry-amt">${amt}</span>
-          </div>`
-        )
-        .join('');
+        schoolRowsEl.innerHTML = view.rows
+          .map(
+            ([title, sub, badge, badgeCls, amt]) => `
+            <div class="ui-row">
+              <div>
+                <span class="ui-row-main">${title}</span>
+                <span class="ui-row-sub">${sub}</span>
+              </div>
+              <span class="ui-badge ${badgeCls}">${badge}</span>
+              <span class="entry-amt">${amt}</span>
+            </div>`
+          )
+          .join('');
+      });
     });
   });
 
-  // Feature 3: Maker-Checker Approve toggle
+  // Feature 3: Maker-Checker Approve Toggle with Confirmation Flash
   const approveBtn = document.getElementById('demo-approve-btn');
+  const poRow = document.getElementById('po-demo-row');
   const poBadge = document.getElementById('po-demo-badge');
   const poSub = document.getElementById('po-demo-sub');
   const poAudit = document.getElementById('po-audit-note');
@@ -421,6 +707,12 @@
         poBadge.className = 'ui-badge is-mint';
         poSub.textContent = 'Checker sign-off recorded · Posted to Payables';
         if (poAudit) poAudit.textContent = 'Audit log updated: Checker approved PO-0418 just now';
+        if (poRow) {
+          poRow.dataset.flash = 'true';
+          setTimeout(() => {
+            poRow.dataset.flash = 'false';
+          }, 520);
+        }
       } else {
         approveBtn.textContent = '✓ Approve PO-0418';
         poBadge.textContent = 'Awaiting checker';
@@ -432,7 +724,7 @@
   }
 
   /* =========================================================
-     6. Pricing Controls (#pricing)
+     7. Pricing Controls (#pricing) — Elastic Switch & Range Bubble
      ========================================================= */
   const dmSwitch = document.getElementById('dm-switch');
   const setupTotalDisplay = document.getElementById('setup-total-display');
@@ -449,8 +741,8 @@
       dmSwitch.setAttribute('aria-checked', String(includeDm));
       const nextTotal = includeDm ? 700000 : 500000;
 
-      animateValue(setupTotalDisplay, currentSetupTotal, nextTotal, 220);
-      animateValue(setupSummaryAmt, currentSetupTotal, nextTotal, 220);
+      animateValue(setupTotalDisplay, currentSetupTotal, nextTotal, 240);
+      animateValue(setupSummaryAmt, currentSetupTotal, nextTotal, 240);
       currentSetupTotal = nextTotal;
 
       if (setupCaption) {
@@ -479,15 +771,17 @@
     });
   }
 
-  // School Monthly Subscription Estimator
+  // School Monthly Subscription Estimator + Floating Bubble
   const studentSlider = document.getElementById('student-slider');
+  const rangeBubble = document.getElementById('range-bubble');
   const studentCountOut = document.getElementById('student-count-out');
   const schoolMonthlyOut = document.getElementById('school-monthly-out');
   const presetBtns = document.querySelectorAll('.preset-btn');
   const bookMonthlyBtn = document.getElementById('book-monthly-btn');
   let schoolEstimatorTouched = false;
+  let currentStudents = 450;
 
-  function updateSchoolSlider(students, markTouched = false) {
+  function updateSchoolSlider(students, { markTouched = false, animateMonthly = false } = {}) {
     if (!studentSlider) return;
     const min = Number(studentSlider.min) || 50;
     const max = Number(studentSlider.max) || 2000;
@@ -496,8 +790,19 @@
     const pct = ((val - min) / (max - min)) * 100;
     studentSlider.style.setProperty('--fill', `${pct.toFixed(1)}%`);
 
+    if (rangeBubble) {
+      rangeBubble.textContent = val.toLocaleString('en-US');
+      rangeBubble.style.left = `calc(${pct.toFixed(2)}% + ${(12 - pct * 0.24).toFixed(1)}px)`;
+    }
     if (studentCountOut) studentCountOut.textContent = val.toLocaleString('en-US');
-    if (schoolMonthlyOut) schoolMonthlyOut.textContent = `${formatUGX(val * 1000)} / mo`;
+    if (schoolMonthlyOut) {
+      if (animateMonthly && currentStudents !== val) {
+        animateValue(schoolMonthlyOut, currentStudents * 1000, val * 1000, 220, (n) => `${formatUGX(n)} / mo`);
+      } else {
+        schoolMonthlyOut.textContent = `${formatUGX(val * 1000)} / mo`;
+      }
+    }
+    currentStudents = val;
 
     presetBtns.forEach((btn) => {
       btn.setAttribute('aria-pressed', String(Number(btn.dataset.students) === val));
@@ -506,13 +811,27 @@
   }
 
   if (studentSlider) {
-    updateSchoolSlider(Number(studentSlider.value), false);
+    updateSchoolSlider(Number(studentSlider.value));
     studentSlider.addEventListener('input', () => {
-      updateSchoolSlider(Number(studentSlider.value), true);
+      updateSchoolSlider(Number(studentSlider.value), { markTouched: true, animateMonthly: false });
     });
+    if (rangeBubble) {
+      const showBubble = () => {
+        rangeBubble.dataset.active = 'true';
+      };
+      const hideBubble = () => {
+        rangeBubble.dataset.active = 'false';
+      };
+      studentSlider.addEventListener('pointerdown', showBubble);
+      studentSlider.addEventListener('pointerup', hideBubble);
+      studentSlider.addEventListener('pointerenter', showBubble);
+      studentSlider.addEventListener('pointerleave', hideBubble);
+      studentSlider.addEventListener('focus', showBubble);
+      studentSlider.addEventListener('blur', hideBubble);
+    }
     presetBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
-        updateSchoolSlider(Number(btn.dataset.students), true);
+        updateSchoolSlider(Number(btn.dataset.students), { markTouched: true, animateMonthly: true });
       });
     });
   }
@@ -540,7 +859,7 @@
   }
 
   /* =========================================================
-     7. Audience / Quote Pre-fill Links
+     8. Audience / Quote Pre-fill Links
      ========================================================= */
   document.querySelectorAll('.js-prefill-org').forEach((link) => {
     link.addEventListener('click', () => {
@@ -566,7 +885,6 @@
     });
   });
 
-  // Auto-suggest matching size group when organizationType changes
   const orgTypeSelect = document.getElementById('f-org-type');
   const orgSizeSelect = document.getElementById('f-org-size');
   if (orgTypeSelect && orgSizeSelect) {
@@ -576,13 +894,14 @@
       if (t === 'School' && cur && !cur.includes('students')) {
         orgSizeSelect.value = '301–800 students';
       } else if (t && t !== 'School' && cur.includes('students')) {
-        orgSizeSelect.value = t === 'Small business' ? '1–10 people' : t === 'Medium-sized business' ? '11–50 people' : '201+ people';
+        orgSizeSelect.value =
+          t === 'Small business' ? '1–10 people' : t === 'Medium-sized business' ? '11–50 people' : '201+ people';
       }
     });
   }
 
   /* =========================================================
-     8. Interruptible Smooth FAQ Accordion
+     9. Interruptible Smooth FAQ Accordion
      ========================================================= */
   document.querySelectorAll('details.faq-item').forEach((details) => {
     const summary = details.querySelector('summary');
@@ -598,12 +917,11 @@
 
       const isOpening = !details.open;
       if (isOpening) {
-        const startHeight = 0;
         details.open = true;
         const endHeight = body.offsetHeight;
         anim = body.animate(
           [
-            { height: `${startHeight}px`, opacity: 0 },
+            { height: '0px', opacity: 0 },
             { height: `${endHeight}px`, opacity: 1 },
           ],
           { duration: 220, easing: 'cubic-bezier(0.23, 1, 0.32, 1)' }
@@ -629,7 +947,7 @@
   });
 
   /* =========================================================
-     9. Demo Booking Form Validation & Submission (#demo-form)
+     10. Demo Booking Form Validation, Shake & Copyable Ref (#book)
      ========================================================= */
   const form = document.getElementById('demo-form');
   const startedInput = document.getElementById('f-started');
@@ -639,6 +957,8 @@
   const submitLabel = document.getElementById('submit-btn-label');
   const successPanel = document.getElementById('booking-success');
   const bookAnotherBtn = document.getElementById('book-another-btn');
+  const copyRefBtn = document.getElementById('copy-ref-btn');
+  const copyChipLabel = document.getElementById('copy-chip-label');
 
   function eatDateISO(offsetDays = 0) {
     const d = new Date(Date.now() + 3 * 3600 * 1000 + offsetDays * 86400 * 1000);
@@ -699,12 +1019,25 @@
     },
   };
 
-  function setFieldError(name, msg) {
+  function setFieldState(name, msg, { shake = false } = {}) {
     const errEl = form?.querySelector(`[data-err-for="${name}"]`);
     const control = form?.elements?.namedItem(name);
     const wrapper = control?.closest?.('.field');
+    const val = (control?.value || '').trim();
+
     if (errEl) errEl.textContent = msg || '';
-    if (wrapper) wrapper.dataset.invalid = msg ? 'true' : 'false';
+    if (wrapper) {
+      wrapper.dataset.invalid = msg ? 'true' : 'false';
+      wrapper.dataset.valid = !msg && val.length > 0 && name !== 'message' ? 'true' : 'false';
+      if (shake && msg && !prefersReducedMotion()) {
+        wrapper.dataset.shake = 'false';
+        void wrapper.offsetWidth;
+        wrapper.dataset.shake = 'true';
+        setTimeout(() => {
+          wrapper.dataset.shake = 'false';
+        }, 280);
+      }
+    }
     if (control && control.setAttribute) {
       if (msg) control.setAttribute('aria-invalid', 'true');
       else control.removeAttribute('aria-invalid');
@@ -716,12 +1049,14 @@
       const ctrl = form.elements.namedItem(fieldName);
       if (!ctrl || !ctrl.addEventListener) return;
       ctrl.addEventListener('blur', () => {
-        setFieldError(fieldName, validators[fieldName](ctrl.value || ''));
+        if ((ctrl.value || '').trim().length > 0 || ctrl.closest?.('.field')?.dataset.invalid === 'true') {
+          setFieldState(fieldName, validators[fieldName](ctrl.value || ''));
+        }
       });
       ctrl.addEventListener('input', () => {
         const wrapper = ctrl.closest?.('.field');
-        if (wrapper?.dataset.invalid === 'true') {
-          setFieldError(fieldName, validators[fieldName](ctrl.value || ''));
+        if (wrapper?.dataset.invalid === 'true' || wrapper?.dataset.valid === 'true') {
+          setFieldState(fieldName, validators[fieldName](ctrl.value || ''));
         }
       });
     });
@@ -746,7 +1081,7 @@
       let firstInvalid = null;
       Object.keys(validators).forEach((key) => {
         const msg = validators[key](payload[key] || '');
-        setFieldError(key, msg);
+        setFieldState(key, msg, { shake: Boolean(msg) });
         if (msg && !firstInvalid) firstInvalid = form.elements.namedItem(key);
       });
 
@@ -772,7 +1107,7 @@
           if (data.errors && typeof data.errors === 'object') {
             let firstServerErr = null;
             Object.entries(data.errors).forEach(([k, v]) => {
-              setFieldError(k, String(v));
+              setFieldState(k, String(v), { shake: true });
               if (!firstServerErr) firstServerErr = form.elements.namedItem(k);
             });
             firstServerErr?.focus?.();
@@ -791,6 +1126,8 @@
         if (confirmName) confirmName.textContent = payload.name;
         if (confirmOrg) confirmOrg.textContent = payload.organization;
         if (confirmRef) confirmRef.textContent = data.reference || 'BOAT-RECEIVED';
+        if (copyRefBtn) copyRefBtn.dataset.copied = 'false';
+        if (copyChipLabel) copyChipLabel.textContent = 'Copy';
 
         form.hidden = true;
         if (successPanel) successPanel.hidden = false;
@@ -801,8 +1138,33 @@
         }
       } finally {
         if (submitBtn) submitBtn.disabled = false;
-        if (submitLabel) submitLabel.textContent = 'Book my demo';
+        if (submitLabel) submitLabel.innerHTML = 'Book my demo <span class="ico-arrow" aria-hidden="true">→</span>';
       }
+    });
+  }
+
+  if (copyRefBtn) {
+    copyRefBtn.addEventListener('click', async () => {
+      const code = document.getElementById('confirm-ref')?.textContent?.trim() || '';
+      if (!code) return;
+      try {
+        await navigator.clipboard.writeText(code);
+      } catch {
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand('copy'); } catch {}
+        ta.remove();
+      }
+      copyRefBtn.dataset.copied = 'true';
+      if (copyChipLabel) copyChipLabel.textContent = 'Copied ✓';
+      setTimeout(() => {
+        copyRefBtn.dataset.copied = 'false';
+        if (copyChipLabel) copyChipLabel.textContent = 'Copy';
+      }, 2000);
     });
   }
 
@@ -811,7 +1173,7 @@
       form.reset();
       if (dateInput) dateInput.value = eatDateISO(1);
       if (startedInput) startedInput.value = String(Date.now());
-      Object.keys(validators).forEach((k) => setFieldError(k, ''));
+      Object.keys(validators).forEach((k) => setFieldState(k, ''));
       if (errorBanner) errorBanner.hidden = true;
       successPanel.hidden = true;
       form.hidden = false;

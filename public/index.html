@@ -14,20 +14,22 @@
   <a class="skip-link" href="#main">Skip to main content</a>
 
   <!-- =========================================================
-       HEADER
+       HEADER + COMPOSITED SCROLL PROGRESS HAIRLINE
        ========================================================= -->
-  <header class="site-header">
+  <header class="site-header" id="site-header" data-scrolled="false">
+    <div class="scroll-progress" id="scroll-progress" aria-hidden="true"></div>
     <div class="wrap header-inner">
       <a class="brand" href="#top" aria-label="BOAT — Business Operations Automation Technologies home">
         <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-          <path d="M18.5 5.5L28.5 19.5H18.5V5.5Z" fill="#16C8A3"/>
-          <path d="M16.8 10.5L9.2 19.5H16.8V10.5Z" fill="#38BDF8"/>
-          <path d="M6.5 22.2H29.5C27.5 27.2 23.4 30 18 30C12.6 30 8.5 27.2 6.5 22.2Z" fill="#0E7C6B"/>
+          <path class="sail-main" d="M18.5 5.5L28.5 19.5H18.5V5.5Z" fill="#16C8A3"/>
+          <path class="sail-jib" d="M16.8 10.5L9.2 19.5H16.8V10.5Z" fill="#38BDF8"/>
+          <path class="sail-hull" d="M6.5 22.2H29.5C27.5 27.2 23.4 30 18 30C12.6 30 8.5 27.2 6.5 22.2Z" fill="#0E7C6B"/>
         </svg>
         <span>BOAT</span>
       </a>
 
-      <nav class="primary-nav" aria-label="Primary">
+      <nav class="primary-nav" id="primary-nav" aria-label="Primary">
+        <span class="nav-pill-indicator" id="nav-pill-indicator" aria-hidden="true"></span>
         <a class="nav-link" href="#who">Solutions</a>
         <a class="nav-link" href="#product">Features</a>
         <a class="nav-link" href="#why">Why BOAT</a>
@@ -38,9 +40,9 @@
 
       <div class="header-actions">
         <a class="signin-link js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">
-          Sign in
+          Sign in <span class="ico-diag" aria-hidden="true">↗</span>
         </a>
-        <a class="btn btn-ink btn-sm" href="#book">Book a demo</a>
+        <a class="btn btn-ink btn-sm js-magnetic" href="#book">Book a demo</a>
         <button class="menu-btn" id="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-drawer">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path id="menu-icon-path" d="M3 6H17M3 10H17M3 14H17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
@@ -51,12 +53,12 @@
 
     <div class="mobile-drawer" id="mobile-drawer" data-open="false" hidden>
       <nav class="mobile-drawer-links" aria-label="Mobile navigation">
-        <a href="#who">Solutions <span>→</span></a>
-        <a href="#product">Features <span>→</span></a>
-        <a href="#why">Why BOAT <span>→</span></a>
-        <a href="#how">How it works <span>→</span></a>
-        <a href="#pricing">Pricing <span>→</span></a>
-        <a href="#faq">FAQ <span>→</span></a>
+        <a href="#who">Solutions <span class="ico-arrow" aria-hidden="true">→</span></a>
+        <a href="#product">Features <span class="ico-arrow" aria-hidden="true">→</span></a>
+        <a href="#why">Why BOAT <span class="ico-arrow" aria-hidden="true">→</span></a>
+        <a href="#how">How it works <span class="ico-arrow" aria-hidden="true">→</span></a>
+        <a href="#pricing">Pricing <span class="ico-arrow" aria-hidden="true">→</span></a>
+        <a href="#faq">FAQ <span class="ico-arrow" aria-hidden="true">→</span></a>
       </nav>
       <div class="mobile-drawer-actions">
         <a class="btn btn-ghost btn-sm js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Sign in</a>
@@ -73,7 +75,7 @@
       <div class="wrap">
         <div class="hero-copy">
           <div class="hero-lead-unit">
-            <p class="eyebrow">Business Operations Automation Technologies</p>
+            <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span>Business Operations Automation Technologies</p>
             <h1 class="display">
               <span class="light">Accounting &amp; school finance—</span>
               <span class="bold">set up and taught to your team.</span>
@@ -84,23 +86,23 @@
           </div>
 
           <div class="hero-ctas hero-support-ctas">
-            <a class="btn btn-mint" href="#book">Book a demo</a>
+            <a class="btn btn-mint js-magnetic" href="#book">Book a demo <span class="ico-arrow" aria-hidden="true">→</span></a>
             <a class="btn btn-ghost" href="#product">Explore BOAT</a>
           </div>
 
           <div class="hero-sublinks hero-support-ctas">
-            <a href="#pricing">See UGX pricing ↓</a>
+            <a href="#pricing">See UGX pricing <span class="ico-down" aria-hidden="true">↓</span></a>
             <span aria-hidden="true">·</span>
-            <a class="js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Open live BOAT app ↗</a>
+            <a class="js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Open live BOAT app <span class="ico-diag" aria-hidden="true">↗</span></a>
           </div>
         </div>
 
-        <!-- Money rails divider — interactive channel filter -->
+        <!-- Money rails divider — interactive channel filter with sliding pill -->
         <div class="rails-block hero-decor-rails">
           <div class="rails-rule">
             <span class="rails-caption">Click a channel to highlight how money moves in BOAT</span>
           </div>
-          <div class="rails-list" role="toolbar" aria-label="Filter sample entries by payment channel">
+          <div class="rails-list" id="rails-list" role="toolbar" aria-label="Filter sample entries by payment channel">
             <button class="rail-pill" type="button" data-rail="all" aria-pressed="true">
               <span class="rail-dot" aria-hidden="true"></span>All channels
             </button>
@@ -126,7 +128,7 @@
         </div>
 
         <!-- Digits-style soft gradient dashboard panel -->
-        <div class="panel hero-support-panel" aria-label="Sample BOAT financial overview">
+        <div class="panel hero-support-panel" id="hero-panel" aria-label="Sample BOAT financial overview">
           <div class="panel-grid-top">
             <!-- Card 1: Cash & bank -->
             <article class="w-card">
@@ -135,7 +137,7 @@
                 <span class="tag-pill" id="cash-rail-tag" hidden>ALL</span>
               </div>
               <p class="w-sub" id="cash-sub">Cash, MoMo &amp; bank accounts</p>
-              <p class="kpi-val" id="cash-kpi">UGX 46.8M</p>
+              <p class="kpi-val" id="cash-kpi" data-count-prefix="UGX " data-count-to="46.8" data-count-suffix="M" data-count-decimals="1">UGX 46.8M</p>
               <span class="delta-pill delta-up">↗ 12% MoM</span>
               <div class="chart-box">
                 <span class="spark-tooltip" id="spark-tooltip" data-visible="false">Wk 8 · UGX 46.8M</span>
@@ -146,8 +148,9 @@
                       <stop offset="100%" stop-color="#22E5B5" stop-opacity="0.0"/>
                     </linearGradient>
                   </defs>
-                  <path d="M2 46 L32 39 L62 44 L92 26 L122 23 L152 25 L182 18 L214 12 L214 60 L2 60 Z" fill="url(#mintArea)"/>
-                  <path d="M2 46 L32 39 L62 44 L92 26 L122 23 L152 25 L182 18 L214 12" stroke="#12B98E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path class="spark-area-path" d="M2 46 L32 39 L62 44 L92 26 L122 23 L152 25 L182 18 L214 12 L214 60 L2 60 Z" fill="url(#mintArea)"/>
+                  <path class="spark-line-path" pathLength="1" d="M2 46 L32 39 L62 44 L92 26 L122 23 L152 25 L182 18 L214 12" stroke="#12B98E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle class="spark-pulse" id="spark-pulse" cx="214" cy="12" r="4" fill="#22E5B5"/>
                   <circle id="spark-dot" cx="214" cy="12" r="4" fill="#12B98E" stroke="#ffffff" stroke-width="1.5"/>
                 </svg>
               </div>
@@ -160,18 +163,21 @@
                 <span class="tag-pill">TERM 3</span>
               </div>
               <p class="w-sub">642 students billed</p>
-              <p class="kpi-val">78.6%</p>
+              <p class="kpi-val" data-count-prefix="" data-count-to="78.6" data-count-suffix="%" data-count-decimals="1">78.6%</p>
               <span class="delta-pill delta-up num">UGX 214.6M of 272.9M</span>
-              <div class="bars-row" aria-label="Weekly fee collection bars">
-                <span class="bar-col" style="height:38%" title="Week 1: UGX 24.1M"></span>
-                <span class="bar-col" style="height:56%" title="Week 2: UGX 36.8M"></span>
-                <span class="bar-col" style="height:44%" title="Week 3: UGX 28.4M"></span>
-                <span class="bar-col" style="height:78%" title="Week 4: UGX 44.2M"></span>
-                <span class="bar-col" style="height:58%" title="Week 5: UGX 22.9M"></span>
-                <span class="bar-col" style="height:66%" title="Week 6: UGX 25.0M"></span>
-                <span class="bar-col" style="height:46%" title="Week 7: UGX 14.2M"></span>
-                <span class="bar-col" style="height:34%" title="Week 8: UGX 10.6M"></span>
-                <span class="bar-col is-active" style="height:28%" title="Current week: UGX 8.4M"></span>
+              <div class="chart-box">
+                <span class="spark-tooltip" id="bars-tooltip" data-visible="false">Wk 9 · UGX 8.4M</span>
+                <div class="bars-row" id="hero-bars" aria-label="Weekly fee collection bars">
+                  <span class="bar-col" style="height:38%; --bar-d:0ms" data-bar-tip="Wk 1 · UGX 24.1M"></span>
+                  <span class="bar-col" style="height:56%; --bar-d:45ms" data-bar-tip="Wk 2 · UGX 36.8M"></span>
+                  <span class="bar-col" style="height:44%; --bar-d:85ms" data-bar-tip="Wk 3 · UGX 28.4M"></span>
+                  <span class="bar-col" style="height:78%; --bar-d:120ms" data-bar-tip="Wk 4 · UGX 44.2M"></span>
+                  <span class="bar-col" style="height:58%; --bar-d:150ms" data-bar-tip="Wk 5 · UGX 22.9M"></span>
+                  <span class="bar-col" style="height:66%; --bar-d:175ms" data-bar-tip="Wk 6 · UGX 25.0M"></span>
+                  <span class="bar-col" style="height:46%; --bar-d:195ms" data-bar-tip="Wk 7 · UGX 14.2M"></span>
+                  <span class="bar-col" style="height:34%; --bar-d:210ms" data-bar-tip="Wk 8 · UGX 10.6M"></span>
+                  <span class="bar-col is-active" style="height:28%; --bar-d:225ms" data-bar-tip="Current · UGX 8.4M"></span>
+                </div>
               </div>
             </article>
 
@@ -181,7 +187,7 @@
                 <span class="w-title">Net cash flow</span>
               </div>
               <p class="w-sub">Current period</p>
-              <p class="kpi-val">+UGX 9.3M</p>
+              <p class="kpi-val" data-count-prefix="+UGX " data-count-to="9.3" data-count-suffix="M" data-count-decimals="1">+UGX 9.3M</p>
               <span class="delta-pill delta-down">↘ 4% MoM</span>
               <div class="flow-bars" aria-hidden="true">
                 <span class="flow-bar" style="height:14px; transform:translateY(-5px)"></span>
@@ -259,33 +265,33 @@
               </div>
             </article>
 
-            <!-- Bottom Right: Waiting for approval -->
+            <!-- Bottom Right: Waiting for approval (Interactive sign-off preview) -->
             <article class="w-card">
               <div class="w-head">
                 <span class="w-title">Waiting for approval</span>
-                <span class="w-sub">Maker-checker</span>
+                <span class="w-sub" id="hero-appr-count">Click item to sign off</span>
               </div>
-              <div class="appr-list">
-                <div class="appr-row">
+              <div class="appr-list" id="hero-appr-list">
+                <button class="appr-row appr-interactive" type="button" data-signed="false">
                   <span class="status-dot" aria-hidden="true"></span>
                   <span class="entry-name">PO-0418 · Stationery &amp; lab</span>
                   <span class="appr-amt">1.2M</span>
-                </div>
-                <div class="appr-row">
+                </button>
+                <button class="appr-row appr-interactive" type="button" data-signed="false">
                   <span class="status-dot" aria-hidden="true"></span>
                   <span class="entry-name">Bill · Water utility</span>
                   <span class="appr-amt">0.3M</span>
-                </div>
-                <div class="appr-row">
+                </button>
+                <button class="appr-row appr-interactive" type="button" data-signed="true">
                   <span class="status-dot is-ready" aria-hidden="true"></span>
                   <span class="entry-name">Payroll · Monthly run</span>
                   <span class="appr-amt">5.4M</span>
-                </div>
-                <div class="appr-row">
+                </button>
+                <button class="appr-row appr-interactive" type="button" data-signed="false">
                   <span class="status-dot" aria-hidden="true"></span>
                   <span class="entry-name">Store requisition · Kitchen</span>
                   <span class="appr-amt">0.5M</span>
-                </div>
+                </button>
               </div>
             </article>
           </div>
@@ -309,9 +315,9 @@
           </p>
         </div>
 
-        <div class="who-grid reveal">
+        <div class="who-grid stagger-group">
           <!-- 1. Small businesses -->
-          <article class="who-card">
+          <article class="who-card spotlight-card stagger-item" style="--stagger-d: 0ms">
             <span class="who-badge">Small businesses</span>
             <h3>Replace scattered notebooks and spreadsheets</h3>
             <p>
@@ -325,12 +331,12 @@
             </div>
             <div class="who-foot">
               <p class="who-price">UGX 50,000 <span>/ month</span></p>
-              <a class="text-cta js-prefill-org" href="#book" data-org-type="Small business" data-org-size="1–10 people">Book for small business →</a>
+              <a class="text-cta js-prefill-org" href="#book" data-org-type="Small business" data-org-size="1–10 people">Book for small business <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <!-- 2. Medium-sized businesses -->
-          <article class="who-card">
+          <article class="who-card spotlight-card stagger-item" style="--stagger-d: 65ms">
             <span class="who-badge">Medium-sized businesses</span>
             <h3>Tighter stock, purchasing and payroll controls</h3>
             <p>
@@ -344,12 +350,12 @@
             </div>
             <div class="who-foot">
               <p class="who-price">UGX 100,000 <span>/ month</span></p>
-              <a class="text-cta js-prefill-org" href="#book" data-org-type="Medium-sized business" data-org-size="11–50 people">Book for medium business →</a>
+              <a class="text-cta js-prefill-org" href="#book" data-org-type="Medium-sized business" data-org-size="11–50 people">Book for medium business <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <!-- 3. Schools -->
-          <article class="who-card">
+          <article class="who-card spotlight-card stagger-item" style="--stagger-d: 115ms">
             <span class="who-badge">Schools</span>
             <h3>Built for Ugandan school terms, bursars and heads</h3>
             <p>
@@ -363,12 +369,12 @@
             </div>
             <div class="who-foot">
               <p class="who-price">UGX 1,000 <span>/ student / month</span></p>
-              <a class="text-cta js-prefill-org" href="#book" data-org-type="School" data-org-size="301–800 students">Book for a school →</a>
+              <a class="text-cta js-prefill-org" href="#book" data-org-type="School" data-org-size="301–800 students">Book for a school <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <!-- 4. Large organizations -->
-          <article class="who-card">
+          <article class="who-card spotlight-card stagger-item" style="--stagger-d: 155ms">
             <span class="who-badge">Large organizations</span>
             <h3>Structured approvals, budgets and audit-ready close</h3>
             <p>
@@ -382,7 +388,7 @@
             </div>
             <div class="who-foot">
               <p class="who-price">Custom quote <span>· tailored setup</span></p>
-              <a class="text-cta js-prefill-org" href="#book" data-org-type="Large organization" data-org-size="201+ people" data-quote="true">Request a custom quote →</a>
+              <a class="text-cta js-prefill-org" href="#book" data-org-type="Large organization" data-org-size="201+ people" data-quote="true">Request a custom quote <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
         </div>
@@ -404,7 +410,7 @@
 
         <div class="features-stack">
           <!-- Feature Row 1: General Business Sales, Cash & Receivables -->
-          <div class="feature reveal">
+          <div class="feature reveal-feature">
             <div class="f-copy">
               <p class="eyebrow">Sales, expenses &amp; receivables</p>
               <h3>Know what came in, what went out <span class="light">and who still owes you.</span></h3>
@@ -427,51 +433,54 @@
                     <p class="ui-win-sub">General Business workspace</p>
                   </div>
                   <div class="seg-group" role="tablist" aria-label="Business workspace views">
+                    <span class="seg-glider" aria-hidden="true"></span>
                     <button class="seg-btn" type="button" role="tab" aria-selected="true" data-biz-tab="sales">Quick sales</button>
                     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-biz-tab="owing">Customers owing</button>
                     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-biz-tab="expenses">Money Out</button>
                   </div>
                 </div>
 
-                <div class="ui-metrics-strip">
-                  <div class="mini-stat">
-                    <p class="mini-stat-label" id="biz-m1-label">Today’s receipts</p>
-                    <p class="mini-stat-val" id="biz-m1-val">UGX 3,480,000</p>
+                <div class="ui-swap-body" id="biz-swap-body">
+                  <div class="ui-metrics-strip">
+                    <div class="mini-stat">
+                      <p class="mini-stat-label" id="biz-m1-label">Today’s receipts</p>
+                      <p class="mini-stat-val" id="biz-m1-val">UGX 3,480,000</p>
+                    </div>
+                    <div class="mini-stat">
+                      <p class="mini-stat-label" id="biz-m2-label">Mobile money</p>
+                      <p class="mini-stat-val" id="biz-m2-val">UGX 2,150,000</p>
+                    </div>
+                    <div class="mini-stat">
+                      <p class="mini-stat-label" id="biz-m3-label">Cash drawer</p>
+                      <p class="mini-stat-val" id="biz-m3-val">UGX 1,330,000</p>
+                    </div>
                   </div>
-                  <div class="mini-stat">
-                    <p class="mini-stat-label" id="biz-m2-label">Mobile money</p>
-                    <p class="mini-stat-val" id="biz-m2-val">UGX 2,150,000</p>
-                  </div>
-                  <div class="mini-stat">
-                    <p class="mini-stat-label" id="biz-m3-label">Cash drawer</p>
-                    <p class="mini-stat-val" id="biz-m3-val">UGX 1,330,000</p>
-                  </div>
-                </div>
 
-                <div class="ui-table" id="biz-rows" aria-live="polite">
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">POS #1084 · Counter wholesale</span>
-                      <span class="ui-row-sub">Receipt issued · Posted to Sales</span>
+                  <div class="ui-table" id="biz-rows" aria-live="polite">
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">POS #1084 · Counter wholesale</span>
+                        <span class="ui-row-sub">Receipt issued · Posted to Sales</span>
+                      </div>
+                      <span class="ui-badge is-mint">MTN MoMo</span>
+                      <span class="entry-amt is-pos">+1,250,000</span>
                     </div>
-                    <span class="ui-badge is-mint">MTN MoMo</span>
-                    <span class="entry-amt is-pos">+1,250,000</span>
-                  </div>
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">INV-0392 · Clinic supply order</span>
-                      <span class="ui-row-sub">Part-payment received</span>
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">INV-0392 · Clinic supply order</span>
+                        <span class="ui-row-sub">Part-payment received</span>
+                      </div>
+                      <span class="ui-badge is-mint">Airtel Money</span>
+                      <span class="entry-amt is-pos">+900,000</span>
                     </div>
-                    <span class="ui-badge is-mint">Airtel Money</span>
-                    <span class="entry-amt is-pos">+900,000</span>
-                  </div>
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">POS #1085 · Walk-in cash batch</span>
-                      <span class="ui-row-sub"> Drawer reconciled</span>
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">POS #1085 · Walk-in cash batch</span>
+                        <span class="ui-row-sub">Drawer reconciled</span>
+                      </div>
+                      <span class="ui-badge">Cash</span>
+                      <span class="entry-amt is-pos">+1,330,000</span>
                     </div>
-                    <span class="ui-badge">Cash</span>
-                    <span class="entry-amt is-pos">+1,330,000</span>
                   </div>
                 </div>
 
@@ -484,7 +493,7 @@
           </div>
 
           <!-- Feature Row 2: School Finance -->
-          <div class="feature flip reveal">
+          <div class="feature flip reveal-feature">
             <div class="f-copy">
               <p class="eyebrow">School finance &amp; bursar office</p>
               <h3>Term billing, bursaries and fee balances <span class="light">in seconds, not weeks.</span></h3>
@@ -507,51 +516,54 @@
                     <p class="ui-win-sub">Filter by section to preview live balances</p>
                   </div>
                   <div class="seg-group" role="tablist" aria-label="Filter school streams">
+                    <span class="seg-glider" aria-hidden="true"></span>
                     <button class="seg-btn" type="button" role="tab" aria-selected="true" data-school-tab="all">All (642)</button>
                     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-school-tab="day">Day</button>
                     <button class="seg-btn" type="button" role="tab" aria-selected="false" data-school-tab="boarding">Boarding</button>
                   </div>
                 </div>
 
-                <div class="ui-metrics-strip">
-                  <div class="mini-stat">
-                    <p class="mini-stat-label">Term billed</p>
-                    <p class="mini-stat-val" id="sch-billed">UGX 272.9M</p>
+                <div class="ui-swap-body" id="school-swap-body">
+                  <div class="ui-metrics-strip">
+                    <div class="mini-stat">
+                      <p class="mini-stat-label">Term billed</p>
+                      <p class="mini-stat-val" id="sch-billed">UGX 272.9M</p>
+                    </div>
+                    <div class="mini-stat">
+                      <p class="mini-stat-label">Collected</p>
+                      <p class="mini-stat-val" id="sch-collected">UGX 214.6M</p>
+                    </div>
+                    <div class="mini-stat">
+                      <p class="mini-stat-label">Outstanding</p>
+                      <p class="mini-stat-val" id="sch-outstanding">UGX 58.3M</p>
+                    </div>
                   </div>
-                  <div class="mini-stat">
-                    <p class="mini-stat-label">Collected</p>
-                    <p class="mini-stat-val" id="sch-collected">UGX 214.6M</p>
-                  </div>
-                  <div class="mini-stat">
-                    <p class="mini-stat-label">Outstanding</p>
-                    <p class="mini-stat-val" id="sch-outstanding">UGX 58.3M</p>
-                  </div>
-                </div>
 
-                <div class="ui-table" id="school-rows" aria-live="polite">
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">ST-0412 · S.4 East (Boarding)</span>
-                      <span class="ui-row-sub">Receipt #R-1904 · Tuition &amp; boarding</span>
+                  <div class="ui-table" id="school-rows" aria-live="polite">
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">ST-0412 · S.4 East (Boarding)</span>
+                        <span class="ui-row-sub">Receipt #R-1904 · Tuition &amp; boarding</span>
+                      </div>
+                      <span class="ui-badge is-mint">Cleared</span>
+                      <span class="entry-amt">UGX 0 bal</span>
                     </div>
-                    <span class="ui-badge is-mint">Cleared</span>
-                    <span class="entry-amt">UGX 0 bal</span>
-                  </div>
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">ST-0289 · P.7 North (Day)</span>
-                      <span class="ui-row-sub">25% bursary applied · MTN MoMo part-pay</span>
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">ST-0289 · P.7 North (Day)</span>
+                        <span class="ui-row-sub">25% bursary applied · MTN MoMo part-pay</span>
+                      </div>
+                      <span class="ui-badge is-amber">Reminder queued</span>
+                      <span class="entry-amt">UGX 240,000</span>
                     </div>
-                    <span class="ui-badge is-amber">Reminder queued</span>
-                    <span class="entry-amt">UGX 240,000</span>
-                  </div>
-                  <div class="ui-row">
-                    <div>
-                      <span class="ui-row-main">ST-0519 · S.2 West (Boarding)</span>
-                      <span class="ui-row-sub">Bank deposit Slip #88412</span>
+                    <div class="ui-row">
+                      <div>
+                        <span class="ui-row-main">ST-0519 · S.2 West (Boarding)</span>
+                        <span class="ui-row-sub">Bank deposit Slip #88412</span>
+                      </div>
+                      <span class="ui-badge is-mint">Paid 850,000</span>
+                      <span class="entry-amt">UGX 150,000</span>
                     </div>
-                    <span class="ui-badge is-mint">Paid 850,000</span>
-                    <span class="entry-amt">UGX 150,000</span>
                   </div>
                 </div>
 
@@ -564,7 +576,7 @@
           </div>
 
           <!-- Feature Row 3: Purchasing, Inventory, Payroll & Accounting Close -->
-          <div class="feature reveal">
+          <div class="feature reveal-feature">
             <div class="f-copy">
               <p class="eyebrow">Controls, stock, payroll &amp; accounting</p>
               <h3>Approvals before money leaves, <span class="light">audit-ready statements after.</span></h3>
@@ -592,7 +604,7 @@
                 </div>
 
                 <div class="ui-table">
-                  <div class="ui-row" id="po-demo-row">
+                  <div class="ui-row" id="po-demo-row" data-flash="false">
                     <div>
                       <span class="ui-row-main">PO-0418 · Science lab &amp; stationery</span>
                       <span class="ui-row-sub" id="po-demo-sub">PO = GRN #219 = Supplier Bill · Variance UGX 0</span>
@@ -627,7 +639,7 @@
           </div>
 
           <!-- Feature Row 4: Real Login Screenshot, Offline LAN & BOAT Academy -->
-          <div class="feature flip reveal">
+          <div class="feature flip reveal-feature">
             <div class="f-copy">
               <p class="eyebrow">Access, offline LAN &amp; BOAT Academy</p>
               <h3>Sign in your way — <span class="light">online, on mobile or over a local LAN.</span></h3>
@@ -678,73 +690,79 @@
           </p>
         </div>
 
-        <div class="why-layout reveal">
-          <figure class="photo-stage">
-            <img
-              src="/assets/boat-training.jpg"
-              width="1376"
-              height="768"
-              loading="lazy"
-              alt="BOAT onboarding specialist walking finance and bursar staff through ledger setup on a laptop"
-            >
+        <div class="why-layout">
+          <figure class="photo-stage reveal-photo">
+            <div class="photo-img-clip">
+              <img
+                src="/assets/boat-training.jpg"
+                width="1376"
+                height="768"
+                loading="lazy"
+                alt="BOAT onboarding specialist walking finance and bursar staff through ledger setup on a laptop"
+              >
+            </div>
             <figcaption class="photo-caption">
               <span>Hands-on setup, role-based training &amp; practice mode included</span>
-              <a class="text-cta" href="#book" style="min-height:auto">Schedule walkthrough →</a>
+              <a class="text-cta" href="#book" style="min-height:auto">Schedule walkthrough <span class="ico-arrow" aria-hidden="true">→</span></a>
             </figcaption>
           </figure>
 
-          <div class="pillars-list">
-            <div class="pillar-item">
+          <div class="pillars-list stagger-group">
+            <div class="pillar-item stagger-item" style="--stagger-d: 0ms">
               <h3>Professional installation &amp; configuration</h3>
               <p>We configure your chart of accounts, payment channels, tax/deduction rules, school fee structures and user permissions before day one.</p>
             </div>
-            <div class="pillar-item">
+            <div class="pillar-item stagger-item" style="--stagger-d: 55ms">
               <h3>Practical staff training + BOAT Academy</h3>
               <p>Cashiers, bursars, storekeepers, accountants and directors learn their exact daily screens — backed by a safe practice account inside BOAT Academy.</p>
             </div>
-            <div class="pillar-item">
+            <div class="pillar-item stagger-item" style="--stagger-d: 100ms">
               <h3>Optional historical data management</h3>
               <p>Moving from Excel, paper cashbooks or another tool? Our team cleans and imports your opening balances, customers, suppliers and student lists.</p>
             </div>
-            <div class="pillar-item">
+            <div class="pillar-item stagger-item" style="--stagger-d: 135ms">
               <h3>Ongoing support that stays with you</h3>
               <p>Get dependable support through your first month-end close, new school term billing, audits and future staff handovers.</p>
             </div>
           </div>
         </div>
 
-        <!-- 5. HOW IT WORKS — 5-Step Journey -->
-        <div class="journey-wrap reveal" id="how">
-          <div class="journey-head">
+        <!-- 5. HOW IT WORKS — 5-Step Journey with Scroll-Driven Progress Track -->
+        <div class="journey-wrap" id="how">
+          <div class="journey-head reveal">
             <div>
               <p class="eyebrow">How it works</p>
               <h2>From first demo <span class="light">to calm daily operations.</span></h2>
             </div>
-            <a class="btn btn-ghost btn-sm" href="#book">Start at Step 01 →</a>
+            <a class="btn btn-ghost btn-sm" href="#book">Start at Step 01 <span class="ico-arrow" aria-hidden="true">→</span></a>
           </div>
 
-          <ol class="steps-grid">
-            <li class="step-card">
+          <div class="steps-track" aria-hidden="true">
+            <div class="steps-track-fill" id="steps-track-fill"></div>
+          </div>
+
+          <ol class="steps-grid stagger-group" id="steps-grid">
+            <li class="step-card spotlight-card stagger-item" style="--stagger-d: 0ms">
               <span class="step-num">01 · Demo</span>
               <h3>Book a demo</h3>
               <p>Walk through the live BOAT platform using workflows matched to your business, organization or school.</p>
             </li>
-            <li class="step-card">
+            <li class="step-card spotlight-card stagger-item" style="--stagger-d: 55ms">
               <span class="step-num">02 · Assessment</span>
               <h3>Workflow assessment</h3>
               <p>We review your accounts, fee structures, approval rules, internet reliability and existing spreadsheets or ledgers.</p>
             </li>
-            <li class="step-card">
+            <li class="step-card spotlight-card stagger-item" style="--stagger-d: 105ms">
               <span class="step-num">03 · Installation</span>
               <h3>System installation</h3>
               <p>Our team installs BOAT (cloud or local LAN), configures roles and imports your data if data management is selected.</p>
             </li>
-            <li class="step-card">
+            <li class="step-card spotlight-card stagger-item" style="--stagger-d: 145ms">
               <span class="step-num">04 · Training</span>
               <h3>Staff training</h3>
               <p>We train each team member on their daily tasks and verify your opening balances before switching live.</p>
             </li>
-            <li class="step-card">
+            <li class="step-card spotlight-card stagger-item" style="--stagger-d: 175ms">
               <span class="step-num">05 · Subscription</span>
               <h3>Monthly subscription</h3>
               <p>Run smoothly on a predictable UGX monthly plan with ongoing support, updates and new-term assistance.</p>
@@ -767,9 +785,9 @@
           </p>
         </div>
 
-        <div class="pricing-grid reveal">
+        <div class="pricing-grid stagger-group">
           <!-- Card 1: One-time Business Implementation -->
-          <article class="price-card">
+          <article class="price-card stagger-item" style="--stagger-d: 0ms">
             <span class="price-kind">One-time implementation · Paid once upfront</span>
             <h3>Business implementation</h3>
             <p class="price-desc">
@@ -832,12 +850,12 @@
             </div>
 
             <div class="price-card-foot">
-              <a class="btn btn-ghost" id="book-setup-btn" href="#book">Book implementation walkthrough</a>
+              <a class="btn btn-ghost" id="book-setup-btn" href="#book">Book implementation walkthrough <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
 
           <!-- Card 2: Recurring Monthly Subscriptions -->
-          <article class="price-card is-featured">
+          <article class="price-card is-featured stagger-item" style="--stagger-d: 75ms">
             <span class="price-kind">Recurring monthly subscription · Ongoing platform &amp; support</span>
             <h3>Monthly subscriptions</h3>
             <p class="price-desc">
@@ -876,15 +894,18 @@
                 </label>
                 <output class="calc-out" id="school-monthly-out" for="student-slider">UGX 450,000 / mo</output>
               </div>
-              <input
-                class="range-input"
-                id="student-slider"
-                type="range"
-                min="50"
-                max="2000"
-                step="10"
-                value="450"
-              >
+              <div class="range-wrap">
+                <span class="range-bubble" id="range-bubble" data-active="false" aria-hidden="true">450</span>
+                <input
+                  class="range-input"
+                  id="student-slider"
+                  type="range"
+                  min="50"
+                  max="2000"
+                  step="10"
+                  value="450"
+                >
+              </div>
               <div class="preset-chips" role="group" aria-label="Quick student enrollment presets">
                 <button class="preset-btn" type="button" data-students="200" aria-pressed="false">200 students</button>
                 <button class="preset-btn" type="button" data-students="450" aria-pressed="true">450 students</button>
@@ -894,7 +915,7 @@
             </div>
 
             <div class="price-card-foot">
-              <a class="btn btn-mint" id="book-monthly-btn" href="#book">Book a demo</a>
+              <a class="btn btn-mint js-magnetic" id="book-monthly-btn" href="#book">Book a demo <span class="ico-arrow" aria-hidden="true">→</span></a>
             </div>
           </article>
         </div>
@@ -914,7 +935,7 @@
             </p>
           </div>
           <a class="btn btn-ink btn-sm js-prefill-org" href="#book" data-org-type="Large organization" data-org-size="201+ people" data-quote="true">
-            Request a quote →
+            Request a quote <span class="ico-arrow" aria-hidden="true">→</span>
           </a>
         </div>
       </div>
@@ -953,7 +974,7 @@
             </div>
           </div>
 
-          <div class="form-card">
+          <div class="form-card" id="form-card">
             <form id="demo-form" novalidate>
               <!-- Spam protection: off-screen honeypot + load timestamp -->
               <div class="sr" aria-hidden="true">
@@ -965,13 +986,19 @@
               <div class="form-grid">
                 <div class="field">
                   <label for="f-name">Your full name</label>
-                  <input id="f-name" name="name" type="text" autocomplete="name" placeholder="e.g. Sarah Namukasa" required maxlength="100">
+                  <div class="input-wrap">
+                    <input id="f-name" name="name" type="text" autocomplete="name" placeholder="e.g. Sarah Namukasa" required maxlength="100">
+                    <span class="field-valid-tick" aria-hidden="true">✓</span>
+                  </div>
                   <p class="field-err" data-err-for="name" aria-live="polite"></p>
                 </div>
 
                 <div class="field">
                   <label for="f-organization">Organization or school name</label>
-                  <input id="f-organization" name="organization" type="text" autocomplete="organization" placeholder="e.g. Hillside Secondary School" required maxlength="150">
+                  <div class="input-wrap">
+                    <input id="f-organization" name="organization" type="text" autocomplete="organization" placeholder="e.g. Hillside Secondary School" required maxlength="150">
+                    <span class="field-valid-tick" aria-hidden="true">✓</span>
+                  </div>
                   <p class="field-err" data-err-for="organization" aria-live="polite"></p>
                 </div>
 
@@ -1009,13 +1036,19 @@
 
                 <div class="field">
                   <label for="f-email">Email address</label>
-                  <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@organization.ug" required maxlength="254">
+                  <div class="input-wrap">
+                    <input id="f-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" placeholder="you@organization.ug" required maxlength="254">
+                    <span class="field-valid-tick" aria-hidden="true">✓</span>
+                  </div>
                   <p class="field-err" data-err-for="email" aria-live="polite"></p>
                 </div>
 
                 <div class="field">
                   <label for="f-phone">Phone / WhatsApp number</label>
-                  <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+256 7XX XXX XXX" required maxlength="25">
+                  <div class="input-wrap">
+                    <input id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+256 7XX XXX XXX" required maxlength="25">
+                    <span class="field-valid-tick" aria-hidden="true">✓</span>
+                  </div>
                   <p class="field-err" data-err-for="phone" aria-live="polite"></p>
                 </div>
 
@@ -1036,7 +1069,7 @@
 
               <div class="form-submit-wrap">
                 <button class="btn btn-mint" id="submit-demo-btn" type="submit">
-                  <span id="submit-btn-label">Book my demo</span>
+                  <span id="submit-btn-label">Book my demo <span class="ico-arrow" aria-hidden="true">→</span></span>
                 </button>
               </div>
               <p class="form-fineprint">All prices in UGX · No payment required to book a demo or request a quote.</p>
@@ -1053,10 +1086,11 @@
               <p class="lead" style="margin-top:8px; font-size:0.98rem">
                 Thank you, <strong id="confirm-name"></strong>. We have saved your booking for <strong id="confirm-org"></strong> and notified the BOAT onboarding team.
               </p>
-              <div class="ref-badge">
+              <button class="ref-badge" id="copy-ref-btn" type="button" title="Click to copy reference code">
                 <span>Reference:</span>
                 <span id="confirm-ref">BOAT-XXXX</span>
-              </div>
+                <span class="copy-chip" id="copy-chip-label">Copy</span>
+              </button>
               <div style="margin-top:24px">
                 <button class="btn btn-ghost btn-sm" id="book-another-btn" type="button">Submit another request</button>
               </div>
@@ -1181,14 +1215,14 @@
          ========================================================= -->
     <section class="cta-band">
       <div class="wrap">
-        <div class="cta-stage reveal">
+        <div class="cta-stage reveal-feature">
           <h2>Ready for calmer month-ends <span class="light">and clearer term balances?</span></h2>
           <p class="lead">
             Book a live demo or request a custom UGX quote — our team will walk you through BOAT and map out setup for your staff.
           </p>
           <div class="cta-actions">
-            <a class="btn btn-ink" href="#book">Book a demo</a>
-            <a class="btn btn-ghost js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Open BOAT application ↗</a>
+            <a class="btn btn-ink js-magnetic" href="#book">Book a demo <span class="ico-arrow" aria-hidden="true">→</span></a>
+            <a class="btn btn-ghost js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Open BOAT application <span class="ico-diag" aria-hidden="true">↗</span></a>
           </div>
         </div>
       </div>
@@ -1204,9 +1238,9 @@
         <div>
           <a class="brand" href="#top">
             <svg class="brand-mark" viewBox="0 0 36 36" fill="none" aria-hidden="true">
-              <path d="M18.5 5.5L28.5 19.5H18.5V5.5Z" fill="#16C8A3"/>
-              <path d="M16.8 10.5L9.2 19.5H16.8V10.5Z" fill="#38BDF8"/>
-              <path d="M6.5 22.2H29.5C27.5 27.2 23.4 30 18 30C12.6 30 8.5 27.2 6.5 22.2Z" fill="#0E7C6B"/>
+              <path class="sail-main" d="M18.5 5.5L28.5 19.5H18.5V5.5Z" fill="#16C8A3"/>
+              <path class="sail-jib" d="M16.8 10.5L9.2 19.5H16.8V10.5Z" fill="#38BDF8"/>
+              <path class="sail-hull" d="M6.5 22.2H29.5C27.5 27.2 23.4 30 18 30C12.6 30 8.5 27.2 6.5 22.2Z" fill="#0E7C6B"/>
             </svg>
             <span>BOAT</span>
           </a>
@@ -1242,7 +1276,7 @@
           <ul class="footer-links">
             <li><a href="#book">Book a demo</a></li>
             <li><a class="js-prefill-org" href="#book" data-org-type="Large organization" data-org-size="201+ people" data-quote="true">Request a custom quote</a></li>
-            <li><a class="js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Sign in to BOAT app ↗</a></li>
+            <li><a class="js-app-link" href="https://boat-frontend.vercel.app/?page=dashboard" target="_blank" rel="noopener noreferrer">Sign in to BOAT app <span class="ico-diag" aria-hidden="true">↗</span></a></li>
           </ul>
         </div>
       </div>
