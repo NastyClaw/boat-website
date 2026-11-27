@@ -18,7 +18,6 @@ const TYPES = {
 const SECURITY = {
   'X-Content-Type-Options': 'nosniff',
   'Referrer-Policy': 'strict-origin-when-cross-origin',
-  'X-Frame-Options': 'DENY',
 };
 
 function send(res, status, body, headers = {}) {
